@@ -152,6 +152,63 @@ def edit_employee():
             result_display.delete(1.0, tk.END)
             result_display.insert(tk.END, f"No employee found with the ID '{id_to_edit}'\n")
 
+def generate_unique_timetable_id():
+    global timetable_id_counter
+    timetable_id_counter += 1
+    return timetable_id_counter
+
+def add_timetable():
+    global id_entry, working_hours_entry, result_display
+
+    emp_id = id_entry.get()
+    working_hours = working_hours_entry.get()
+
+    if not all([emp_id, working_hours]):
+        result_display.delete(1.0, tk.END)
+        result_display.insert(tk.END, "Both Employee ID and Working Hours are required!")
+        return
+
+    emp_id = int(emp_id)
+    if emp_id not in employees:
+        result_display.delete(1.0, tk.END)
+        result_display.insert(tk.END, f"No employee found with ID '{emp_id}'")
+        return
+
+    working_hours = working_hours.split(',')
+
+    if emp_id in timetables:
+        timetables[emp_id].extend(working_hours)
+    else:
+        timetables[emp_id] = working_hours
+
+    result_display.delete(1.0, tk.END)
+    result_display.insert(tk.END, "Working hours added successfully!")
+
+    # Clear entry fields
+    id_entry.delete(0, tk.END)
+    working_hours_entry.delete(0, tk.END)
+
+    display_employee_timetable(emp_id)
+
+def display_employee_timetable():
+    global result_display
+
+    emp_id = simpledialog.askinteger("Display Timetable", "Enter employee ID:")
+    if emp_id:
+        if emp_id in employees:
+            emp_info = employees[emp_id]
+            result_display.delete(1.0, tk.END)
+            result_display.insert(tk.END, f"\nEmployee Name: {emp_info['Name']}\n")
+            if emp_id in timetables:
+                result_display.insert(tk.END, f"Timetable for Employee ID {emp_id}:\n")
+                for idx, hours in enumerate(timetables[emp_id], start=1):
+                    result_display.insert(tk.END, f"Day {idx}: {hours}\n")
+            else:
+                result_display.insert(tk.END, f"No timetable found for Employee ID {emp_id}\n")
+        else:
+            result_display.delete(1.0, tk.END)
+            result_display.insert(tk.END, f"No employee found with the ID '{emp_id}'\n")
+
 def open_add_staffing_window():
     global name_entry, experience_entry, designation_entry, salary_entry, address_entry, contact_entry, email_entry, result_display
 
@@ -209,55 +266,16 @@ def open_add_staffing_window():
     result_display = tk.Text(add_staffing_window, height=10, width=40)
     result_display.grid(row=10, column=0, columnspan=3, padx=5, pady=5)
 
-def add_timetable():
-    global id_entry, working_hours_entry, result_display
-
-    emp_id = int(id_entry.get())
-    working_hours = working_hours_entry.get()
-
-    if not working_hours:
-        result_display.delete(1.0, tk.END)
-        result_display.insert(tk.END, "Please enter working hours.")
-        return
-
-    if emp_id in timetables:
-        timetables[emp_id].append(working_hours)
-    else:
-        timetables[emp_id] = [working_hours]
-
-    result_display.delete(1.0, tk.END)
-    result_display.insert(tk.END, "Working hours added successfully!")
-
-    # Clear entry fields
-    id_entry.delete(0, tk.END)
-    working_hours_entry.delete(0, tk.END)
-
-    display_employee_timetable(emp_id)
-
-def display_employee_timetable(emp_id):
-    global result_display
-
-    if emp_id in employees:
-        emp_info = employees[emp_id]
-        result_display.insert(tk.END, f"\nEmployee Name: {emp_info['Name']}\n")
-        if emp_id in timetables:
-            result_display.insert(tk.END, f"Timetable for Employee ID {emp_id}:\n")
-            for idx, hours in enumerate(timetables[emp_id], start=1):
-                result_display.insert(tk.END, f"Day {idx}: {hours}\n")
-        else:
-            result_display.insert(tk.END, f"No timetable found for Employee ID {emp_id}\n")
-    else:
-        result_display.insert(tk.END, f"No employee found with the ID '{emp_id}'\n")
-
 def open_timetable_window():
     global id_entry, working_hours_entry, result_display
 
     timetable_window = tk.Toplevel(root)
     timetable_window.title("Employee Timetable")
 
-    ttk.Label(timetable_window, text="Enter Employee ID:", font=font_style).grid(row=0, column=0, padx=5, pady=5, sticky='e')
+    ttk.Label(timetable_window, text="Enter Employee ID*:", font=font_style).grid(row=0, column=0, padx=5, pady=5, sticky='e')
     id_entry = ttk.Entry(timetable_window, font=font_style)
     id_entry.grid(row=0, column=1, padx=5, pady=5)
+    ttk.Label(timetable_window, text="*", font=font_style, foreground="red").grid(row=0, column=2, padx=5, pady=5, sticky='w')
 
     ttk.Label(timetable_window, text="Working Hours (comma-separated)*:", font=font_style).grid(row=1, column=0, padx=5, pady=5, sticky='e')
     working_hours_entry = ttk.Entry(timetable_window, font=font_style)
@@ -272,6 +290,7 @@ def open_timetable_window():
 
     result_display = tk.Text(timetable_window, height=10, width=40)
     result_display.grid(row=4, column=0, columnspan=2, padx=5, pady=5)
+
 
 # Create main window
 root = tk.Tk()

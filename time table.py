@@ -209,19 +209,6 @@ def open_add_staffing_window():
     result_display = tk.Text(add_staffing_window, height=10, width=40)
     result_display.grid(row=10, column=0, columnspan=3, padx=5, pady=5)
 
-def open_edit_staffing_window():
-    global name_entry, experience_entry, designation_entry, salary_entry, address_entry, contact_entry, email_entry, result_display
-
-    edit_staffing_window = tk.Toplevel(root)
-    edit_staffing_window.title("Edit Staffing Data")
-
-    ttk.Label(edit_staffing_window, text="Enter Employee ID:", font=font_style).grid(row=0, column=0, padx=5, pady=5, sticky='e')
-    id_entry = ttk.Entry(edit_staffing_window, font=font_style)
-    id_entry.grid(row=0, column=1, padx=5, pady=5)
-
-    edit_button = ttk.Button(edit_staffing_window, text="Edit Employee Data", command=edit_employee)
-    edit_button.grid(row=1, column=0, columnspan=2, padx=5, pady=5)
-
 def add_timetable():
     global id_entry, working_hours_entry, result_display
 
@@ -305,7 +292,7 @@ file_menu.add_command(label="Exit", command=root.quit)
 employee_menu = tk.Menu(menu_bar, tearoff=0)
 menu_bar.add_cascade(label="Employee", menu=employee_menu)
 employee_menu.add_command(label="Add Staffing", command=open_add_staffing_window)
-employee_menu.add_command(label="Edit Staffing", command=open_edit_staffing_window)
+employee_menu.add_command(label="Edit Staffing", command=edit_employee)
 
 # Create Timetable menu
 timetable_menu = tk.Menu(menu_bar, tearoff=0)

@@ -312,11 +312,6 @@ def open_timetable_window():
     result_display = tk.Text(timetable_window, height=10, width=60)
     result_display.grid(row=4, column=0, columnspan=16, padx=5, pady=5)
 
-
-
-
-
-
 # Create main window
 root = tk.Tk()
 root.title("Employee Management System")

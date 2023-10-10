@@ -365,6 +365,8 @@ def save_health_benefits():
         result_display.insert(tk.END, "Please enter Employee ID and select at least one health benefit option\n")
         result_display.config(state=tk.DISABLED)
 
+# ...
+
 def display_health_benefits():
     global result_display
     emp_id = id_entry.get()
@@ -374,7 +376,11 @@ def display_health_benefits():
             benefits = employees[emp_id]['Health Benefits']
             result_display.config(state=tk.NORMAL)
             result_display.delete(1.0, tk.END)
-            result_display.insert(tk.END, f"\nHealth Benefits for Employee ID {emp_id}:\n")
+
+            # Get the employee's name
+            emp_name = employees[emp_id]['Name']
+
+            result_display.insert(tk.END, f"\nHealth Benefits for Employee ID {emp_id} ({emp_name}):\n")
             for benefit, value in benefits.items():
                 result_display.insert(tk.END, f"{benefit}: {'Yes' if value else 'No'}\n")
             result_display.config(state=tk.DISABLED)
@@ -388,6 +394,9 @@ def display_health_benefits():
         result_display.delete(1.0, tk.END)
         result_display.insert(tk.END, "Please enter Employee ID\n")
         result_display.config(state=tk.DISABLED)
+
+# ...
+
 
 
 

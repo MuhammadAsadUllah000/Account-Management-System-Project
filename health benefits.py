@@ -350,6 +350,15 @@ def save_health_benefits():
             if 'Health Benefits' not in employees[emp_id]:
                 employees[emp_id]['Health Benefits'] = {}
             employees[emp_id]['Health Benefits'] = employee_health_benefits
+
+            # Clear entry fields and checkboxes
+            id_entry.delete(0, tk.END)
+            health_care_var.set(False)
+            paid_time_off_var.set(False)
+            retirement_contrib_var.set(False)
+            childcare_contrib_var.set(False)
+            tuition_reimb_var.set(False)
+
             result_display.config(state=tk.NORMAL)
             result_display.delete(1.0, tk.END)
             result_display.insert(tk.END, f"Health benefits saved for Employee ID {emp_id}\n")
@@ -364,6 +373,7 @@ def save_health_benefits():
         result_display.delete(1.0, tk.END)
         result_display.insert(tk.END, "Please enter Employee ID and select at least one health benefit option\n")
         result_display.config(state=tk.DISABLED)
+
 
 # ...
 

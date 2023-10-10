@@ -1,12 +1,13 @@
 import tkinter as tk
-import sqlite3
 from tkinter import simpledialog, messagebox
+import sqlite3
 
 class Account:
-    def __init__(self, id, name, balance):
+    def __init__(self, id, name, balance, password):
         self.id = id
         self.name = name
         self.balance = balance
+        self.password = password
 
     def deposit(self, amount):
         self.balance += amount
@@ -21,7 +22,6 @@ class Account:
     def display_balance(self):
         return f"Account: {self.name}, Balance: {self.balance}"
 
-
 class AccountManager:
     def __init__(self):
         self.conn = sqlite3.connect('accounts.db')
@@ -34,20 +34,21 @@ class AccountManager:
             CREATE TABLE IF NOT EXISTS accounts (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
-                balance REAL NOT NULL
+                balance REAL NOT NULL,
+                password TEXT NOT NULL
             )
         ''')
         self.conn.commit()
 
     def load_accounts(self):
         cursor = self.conn.cursor()
-        cursor.execute('SELECT id, name, balance FROM accounts')
+        cursor.execute('SELECT id, name, balance, password FROM accounts')
         rows = cursor.fetchall()
-        self.accounts = [Account(id, name, balance) for id, name, balance in rows]
+        self.accounts = [Account(id, name, balance, password) for id, name, balance, password in rows]
 
-    def create_account(self, name, balance):
+    def create_account(self, name, balance, password):
         cursor = self.conn.cursor()
-        cursor.execute('INSERT INTO accounts (name, balance) VALUES (?, ?)', (name, balance))
+        cursor.execute('INSERT INTO accounts (name, balance, password) VALUES (?, ?, ?)', (name, balance, password))
         self.conn.commit()
         self.load_accounts()
         return f"Account {name} created successfully."
@@ -65,6 +66,11 @@ class AccountManager:
                 return account
         return None
 
+    def check_password(self, name, password):
+        account = self.get_account(name)
+        if account and account.password == password:
+            return True
+        return False
 
 class Application(tk.Tk):
     def __init__(self):
@@ -98,55 +104,71 @@ class Application(tk.Tk):
     def create_account(self):
         name = self.prompt("Enter account name:")
         balance = float(self.prompt("Enter initial balance:"))
-        result = self.manager.create_account(name, balance)
+        password = self.prompt("Set account password:")
+        result = self.manager.create_account(name, balance, password)
         self.display_message(result)
 
     def delete_account(self):
         name = self.prompt("Enter account name to delete:")
-        account = self.manager.get_account(name)
-        if account:
-            result = self.manager.delete_account(account.id)
-            self.display_message(result)
+        password = self.prompt("Enter account password:")
+        if self.manager.check_password(name, password):
+            account = self.manager.get_account(name)
+            if account:
+                result = self.manager.delete_account(account.id)
+                self.display_message(result)
+            else:
+                self.display_message(f"Account {name} not found.")
         else:
-            self.display_message(f"Account {name} not found.")
+            self.display_message("Invalid password")
 
     def deposit(self):
         name = self.prompt("Enter account name:")
-        account = self.manager.get_account(name)
-        if account:
-            amount = float(self.prompt("Enter amount to deposit:"))
-            account.deposit(amount)
-            self.display_message(account.display_balance())
+        password = self.prompt("Enter account password:")
+        if self.manager.check_password(name, password):
+            account = self.manager.get_account(name)
+            if account:
+                amount = float(self.prompt("Enter amount to deposit:"))
+                account.deposit(amount)
+                self.display_message(account.display_balance())
+            else:
+                self.display_message(f"Account {name} not found.")
         else:
-            self.display_message(f"Account {name} not found.")
+            self.display_message("Invalid password")
 
     def withdraw(self):
         name = self.prompt("Enter account name:")
-        account = self.manager.get_account(name)
-        if account:
-            amount = float(self.prompt("Enter amount to withdraw:"))
-            success = account.withdraw(amount)
-            if success:
-                self.display_message(account.display_balance())
+        password = self.prompt("Enter account password:")
+        if self.manager.check_password(name, password):
+            account = self.manager.get_account(name)
+            if account:
+                amount = float(self.prompt("Enter amount to withdraw:"))
+                success = account.withdraw(amount)
+                if success:
+                    self.display_message(account.display_balance())
+                else:
+                    self.display_message("Insufficient funds.")
             else:
-                self.display_message("Insufficient funds.")
+                self.display_message(f"Account {name} not found.")
         else:
-            self.display_message(f"Account {name} not found.")
+            self.display_message("Invalid password")
 
     def display_balance(self):
         name = self.prompt("Enter account name:")
-        account = self.manager.get_account(name)
-        if account:
-            self.display_message(account.display_balance())
+        password = self.prompt("Enter account password:")
+        if self.manager.check_password(name, password):
+            account = self.manager.get_account(name)
+            if account:
+                self.display_message(account.display_balance())
+            else:
+                self.display_message(f"Account {name} not found.")
         else:
-            self.display_message(f"Account {name} not found.")
+            self.display_message("Invalid password")
 
     def prompt(self, message):
-        return simpledialog.askstring("Input", message)
+        return simpledialog.askstring("Input", message, show='*')
 
     def display_message(self, message):
         messagebox.showinfo("Result", message)
-
 
 if __name__ == "__main__":
     app = Application()

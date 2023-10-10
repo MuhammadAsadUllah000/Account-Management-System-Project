@@ -158,14 +158,14 @@ def generate_unique_timetable_id():
     return timetable_id_counter
 
 def add_timetable():
-    global id_entry, working_hours_entry, result_display
+    global id_entry, result_display, monday_var, tuesday_var, wednesday_var, thursday_var, friday_var
 
     emp_id = id_entry.get()
-    working_hours = working_hours_entry.get()
+    working_hours = [monday_var.get(), tuesday_var.get(), wednesday_var.get(), thursday_var.get(), friday_var.get()]
 
-    if not all([emp_id, working_hours]):
+    if not all([emp_id, *working_hours]):
         result_display.delete(1.0, tk.END)
-        result_display.insert(tk.END, "Both Employee ID and Working Hours are required!")
+        result_display.insert(tk.END, "Employee ID and all working hours are required!")
         return
 
     emp_id = int(emp_id)
@@ -173,8 +173,6 @@ def add_timetable():
         result_display.delete(1.0, tk.END)
         result_display.insert(tk.END, f"No employee found with ID '{emp_id}'")
         return
-
-    working_hours = working_hours.split(',')
 
     if emp_id in timetables:
         timetables[emp_id].extend(working_hours)
@@ -186,9 +184,14 @@ def add_timetable():
 
     # Clear entry fields
     id_entry.delete(0, tk.END)
-    working_hours_entry.delete(0, tk.END)
+    monday_var.delete(0, tk.END)
+    tuesday_var.delete(0, tk.END)
+    wednesday_var.delete(0, tk.END)
+    thursday_var.delete(0, tk.END)
+    friday_var.delete(0, tk.END)
 
     display_employee_timetable(emp_id)
+
 
 def display_employee_timetable():
     global result_display
@@ -201,14 +204,59 @@ def display_employee_timetable():
             result_display.insert(tk.END, f"\nEmployee Name: {emp_info['Name']}\n")
             if emp_id in timetables:
                 result_display.insert(tk.END, f"Timetable for Employee ID {emp_id}:\n")
-                for idx, hours in enumerate(timetables[emp_id], start=1):
-                    result_display.insert(tk.END, f"Day {idx}: {hours}\n")
+                days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+                timetable = timetables[emp_id]
+                for day, hours in zip(days, timetable):
+                    result_display.insert(tk.END, f"{day}: {hours}\n")
             else:
                 result_display.insert(tk.END, f"No timetable found for Employee ID {emp_id}\n")
         else:
             result_display.delete(1.0, tk.END)
             result_display.insert(tk.END, f"No employee found with the ID '{emp_id}'\n")
+def open_attendance_window():
+    record_attendance()
 
+def record_attendance():
+    global id_entry, present_var, absent_var, result_display
+
+    attendance_window = tk.Toplevel(root)
+    attendance_window.title("Record Attendance")
+
+    ttk.Label(attendance_window, text="Enter Employee ID*:", font=font_style).grid(row=0, column=0, padx=(5, 2), pady=5, sticky='e')
+    id_entry = ttk.Entry(attendance_window, font=font_style)
+    id_entry.grid(row=0, column=1, padx=(2, 5), pady=5)
+    ttk.Label(attendance_window, text="*", font=font_style, foreground="red").grid(row=0, column=2, padx=5, pady=5, sticky='w')
+
+    present_var = tk.BooleanVar(value=False)  # Initialize as False
+    absent_var = tk.BooleanVar(value=False)   # Initialize as False
+
+    ttk.Checkbutton(attendance_window, text="Present", variable=present_var).grid(row=1, column=0, padx=5, pady=5, sticky='w')
+    ttk.Checkbutton(attendance_window, text="Absent", variable=absent_var).grid(row=2, column=0, padx=5, pady=5, sticky='w')
+
+    result_display = tk.Text(attendance_window, height=5, width=40)
+    result_display.grid(row=3, column=0, columnspan=3, padx=5, pady=5)
+
+    def save_attendance():
+        emp_id = id_entry.get()
+        present = present_var.get()
+        absent = absent_var.get()
+
+        if emp_id and (present or absent):
+            emp_id = int(emp_id)
+            if emp_id in employees:
+                attendance = "Present" if present else "Absent"
+                result_display.delete(1.0, tk.END)
+                result_display.insert(tk.END, f"Attendance for Employee ID {emp_id}: {attendance}\n")
+            else:
+                result_display.delete(1.0, tk.END)
+                result_display.insert(tk.END, f"No employee found with ID '{emp_id}'\n")
+        else:
+            result_display.delete(1.0, tk.END)
+            result_display.insert(tk.END, "Please enter Employee ID and select either 'Present' or 'Absent'\n")
+
+    save_button = ttk.Button(attendance_window, text="Save Attendance", command=save_attendance)
+    save_button.grid(row=4, column=0, columnspan=2, padx=5, pady=5)
+    
 def open_add_staffing_window():
     global name_entry, experience_entry, designation_entry, salary_entry, address_entry, contact_entry, email_entry, result_display
 
@@ -267,29 +315,51 @@ def open_add_staffing_window():
     result_display.grid(row=10, column=0, columnspan=3, padx=5, pady=5)
 
 def open_timetable_window():
-    global id_entry, working_hours_entry, result_display
+    global id_entry, result_display, monday_var, tuesday_var, wednesday_var, thursday_var, friday_var
 
     timetable_window = tk.Toplevel(root)
     timetable_window.title("Employee Timetable")
 
-    ttk.Label(timetable_window, text="Enter Employee ID*:", font=font_style).grid(row=0, column=0, padx=5, pady=5, sticky='e')
+    ttk.Label(timetable_window, text="Enter Employee ID*:", font=font_style).grid(row=0, column=0, padx=(5, 2), pady=5, sticky='e')
     id_entry = ttk.Entry(timetable_window, font=font_style)
-    id_entry.grid(row=0, column=1, padx=5, pady=5)
+    id_entry.grid(row=0, column=1, padx=(2, 5), pady=5)
     ttk.Label(timetable_window, text="*", font=font_style, foreground="red").grid(row=0, column=2, padx=5, pady=5, sticky='w')
 
-    ttk.Label(timetable_window, text="Working Hours (comma-separated)*:", font=font_style).grid(row=1, column=0, padx=5, pady=5, sticky='e')
-    working_hours_entry = ttk.Entry(timetable_window, font=font_style)
-    working_hours_entry.grid(row=1, column=1, padx=5, pady=5)
-    ttk.Label(timetable_window, text="*", font=font_style, foreground="red").grid(row=1, column=2, padx=5, pady=5, sticky='w')
+    ttk.Label(timetable_window, text="Working Hours:", font=font_style).grid(row=1, column=0, padx=(5, 2), pady=5, sticky='e')
+
+    ttk.Label(timetable_window, text="Monday*:", font=font_style).grid(row=1, column=1, padx=(2, 5), pady=5, sticky='w')
+    monday_var = ttk.Entry(timetable_window, font=font_style, width=8)
+    monday_var.grid(row=1, column=2, padx=(2, 5), pady=5)
+    ttk.Label(timetable_window, text="*", font=font_style, foreground="red").grid(row=1, column=3, padx=5, pady=5, sticky='w')
+
+    ttk.Label(timetable_window, text="Tuesday*:", font=font_style).grid(row=1, column=4, padx=(2, 5), pady=5, sticky='w')
+    tuesday_var = ttk.Entry(timetable_window, font=font_style, width=8)
+    tuesday_var.grid(row=1, column=5, padx=(2, 5), pady=5)
+    ttk.Label(timetable_window, text="*", font=font_style, foreground="red").grid(row=1, column=6, padx=5, pady=5, sticky='w')
+
+    ttk.Label(timetable_window, text="Wednesday*:", font=font_style).grid(row=1, column=7, padx=(2, 5), pady=5, sticky='w')
+    wednesday_var = ttk.Entry(timetable_window, font=font_style, width=8)
+    wednesday_var.grid(row=1, column=8, padx=(2, 5), pady=5)
+    ttk.Label(timetable_window, text="*", font=font_style, foreground="red").grid(row=1, column=9, padx=5, pady=5, sticky='w')
+
+    ttk.Label(timetable_window, text="Thursday*:", font=font_style).grid(row=1, column=10, padx=(2, 5), pady=5, sticky='w')
+    thursday_var = ttk.Entry(timetable_window, font=font_style, width=8)
+    thursday_var.grid(row=1, column=11, padx=(2, 5), pady=5)
+    ttk.Label(timetable_window, text="*", font=font_style, foreground="red").grid(row=1, column=12, padx=5, pady=5, sticky='w')
+
+    ttk.Label(timetable_window, text="Friday*:", font=font_style).grid(row=1, column=13, padx=(2, 5), pady=5, sticky='w')
+    friday_var = ttk.Entry(timetable_window, font=font_style, width=8)
+    friday_var.grid(row=1, column=14, padx=(2, 5), pady=5)
+    ttk.Label(timetable_window, text="*", font=font_style, foreground="red").grid(row=1, column=15, padx=5, pady=5, sticky='w')
 
     add_button = ttk.Button(timetable_window, text="Add Timetable", command=add_timetable)
-    add_button.grid(row=2, column=0, columnspan=2, padx=5, pady=5)
+    add_button.grid(row=2, column=0, columnspan=16, padx=5, pady=5)
 
     display_button = ttk.Button(timetable_window, text="Display Timetable", command=display_employee_timetable)
-    display_button.grid(row=3, column=0, columnspan=2, padx=5, pady=5)
+    display_button.grid(row=3, column=0, columnspan=16, padx=5, pady=5)
 
-    result_display = tk.Text(timetable_window, height=10, width=40)
-    result_display.grid(row=4, column=0, columnspan=2, padx=5, pady=5)
+    result_display = tk.Text(timetable_window, height=10, width=60)
+    result_display.grid(row=4, column=0, columnspan=16, padx=5, pady=5)
 
 
 # Create main window
@@ -317,6 +387,12 @@ employee_menu.add_command(label="Edit Staffing", command=edit_employee)
 timetable_menu = tk.Menu(menu_bar, tearoff=0)
 menu_bar.add_cascade(label="Timetable", menu=timetable_menu)
 timetable_menu.add_command(label="Employee Timetable", command=open_timetable_window)
+
+# Create Attendance menu
+attendance_menu = tk.Menu(menu_bar, tearoff=0)
+menu_bar.add_cascade(label="Attendance", menu=attendance_menu)
+attendance_menu.add_command(label="Record Attendance", command=open_attendance_window)
+
 
 # Set menu bar
 root.config(menu=menu_bar)

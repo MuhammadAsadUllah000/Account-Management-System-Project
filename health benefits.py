@@ -287,6 +287,110 @@ def record_attendance():
 
     save_button = ttk.Button(attendance_window, text="Save Attendance", command=save_attendance)
     save_button.grid(row=5, column=0, columnspan=2, padx=5, pady=5)
+    
+# Define result_display as a global variable
+result_display = None
+
+def open_health_benefits_window():
+    global health_care_var, paid_time_off_var, retirement_contrib_var, childcare_contrib_var, tuition_reimb_var, id_entry, result_display
+
+    health_benefits_window = tk.Toplevel(root)
+    health_benefits_window.title("Manage Health Benefits")
+
+    ttk.Label(health_benefits_window, text="Enter Employee ID*:", font=font_style).pack(anchor='w', pady=(10, 0))
+    id_entry = ttk.Entry(health_benefits_window, font=font_style)
+    id_entry.pack(anchor='w', padx=10)
+    ttk.Label(health_benefits_window, text="*", font=font_style, foreground="red").pack(anchor='w', padx=(0, 10))
+
+    health_care_var = tk.BooleanVar(value=False)
+    paid_time_off_var = tk.BooleanVar(value=False)
+    retirement_contrib_var = tk.BooleanVar(value=False)
+    childcare_contrib_var = tk.BooleanVar(value=False)
+    tuition_reimb_var = tk.BooleanVar(value=False)
+
+    ttk.Checkbutton(health_benefits_window, text="Health Care Coverage", variable=health_care_var).pack(anchor='w')
+    ttk.Checkbutton(health_benefits_window, text="Paid Time Off", variable=paid_time_off_var).pack(anchor='w')
+    ttk.Checkbutton(health_benefits_window, text="Retirement Contributions and Plans", variable=retirement_contrib_var).pack(anchor='w')
+    ttk.Checkbutton(health_benefits_window, text="Childcare Contributions", variable=childcare_contrib_var).pack(anchor='w')
+    ttk.Checkbutton(health_benefits_window, text="Tuition Reimbursement", variable=tuition_reimb_var).pack(anchor='w')
+
+    save_button = ttk.Button(health_benefits_window, text="Save", command=save_health_benefits)
+    save_button.pack(pady=10)
+
+    display_button = ttk.Button(health_benefits_window, text="Display", command=display_health_benefits)
+    display_button.pack(pady=10)
+
+    # Add a text widget for displaying results
+    result_display = tk.Text(health_benefits_window, wrap="word", width=50, height=10, state=tk.DISABLED)
+    result_display.pack(padx=10, pady=(0, 10))
+
+def save_health_benefits():
+    global result_display
+    emp_id = id_entry.get()
+    health_care = health_care_var.get()
+    paid_time_off = paid_time_off_var.get()
+    retirement_contrib = retirement_contrib_var.get()
+    childcare_contrib = childcare_contrib_var.get()
+    tuition_reimb = tuition_reimb_var.get()
+
+    if emp_id and (health_care or paid_time_off or retirement_contrib or childcare_contrib or tuition_reimb):
+        emp_id = int(emp_id)
+        if emp_id in employees:
+            # Now you can save the health benefits for the specific employee.
+            # For example, you can create a dictionary to store the benefits.
+            employee_health_benefits = {
+                'Health Care Coverage': health_care,
+                'Paid Time Off': paid_time_off,
+                'Retirement Contributions': retirement_contrib,
+                'Childcare Contributions': childcare_contrib,
+                'Tuition Reimbursement': tuition_reimb
+            }
+
+            # Add the health benefits to the employee's information.
+            if 'Health Benefits' not in employees[emp_id]:
+                employees[emp_id]['Health Benefits'] = {}
+            employees[emp_id]['Health Benefits'] = employee_health_benefits
+            result_display.config(state=tk.NORMAL)
+            result_display.delete(1.0, tk.END)
+            result_display.insert(tk.END, f"Health benefits saved for Employee ID {emp_id}\n")
+            result_display.config(state=tk.DISABLED)
+        else:
+            result_display.config(state=tk.NORMAL)
+            result_display.delete(1.0, tk.END)
+            result_display.insert(tk.END, f"No employee found with ID '{emp_id}'\n")
+            result_display.config(state=tk.DISABLED)
+    else:
+        result_display.config(state=tk.NORMAL)
+        result_display.delete(1.0, tk.END)
+        result_display.insert(tk.END, "Please enter Employee ID and select at least one health benefit option\n")
+        result_display.config(state=tk.DISABLED)
+
+def display_health_benefits():
+    global result_display
+    emp_id = id_entry.get()
+    if emp_id:
+        emp_id = int(emp_id)
+        if emp_id in employees and 'Health Benefits' in employees[emp_id]:
+            benefits = employees[emp_id]['Health Benefits']
+            result_display.config(state=tk.NORMAL)
+            result_display.delete(1.0, tk.END)
+            result_display.insert(tk.END, f"\nHealth Benefits for Employee ID {emp_id}:\n")
+            for benefit, value in benefits.items():
+                result_display.insert(tk.END, f"{benefit}: {'Yes' if value else 'No'}\n")
+            result_display.config(state=tk.DISABLED)
+        else:
+            result_display.config(state=tk.NORMAL)
+            result_display.delete(1.0, tk.END)
+            result_display.insert(tk.END, f"No health benefits found for Employee ID {emp_id}\n")
+            result_display.config(state=tk.DISABLED)
+    else:
+        result_display.config(state=tk.NORMAL)
+        result_display.delete(1.0, tk.END)
+        result_display.insert(tk.END, "Please enter Employee ID\n")
+        result_display.config(state=tk.DISABLED)
+
+
+
 
     
 def open_add_staffing_window():
@@ -424,6 +528,11 @@ timetable_menu.add_command(label="Employee Timetable", command=open_timetable_wi
 attendance_menu = tk.Menu(menu_bar, tearoff=0)
 menu_bar.add_cascade(label="Attendance", menu=attendance_menu)
 attendance_menu.add_command(label="Record Attendance", command=open_attendance_window)
+
+# Create Health Benefits menu
+health_benefits_menu = tk.Menu(menu_bar, tearoff=0)
+menu_bar.add_cascade(label="Health Benefits", menu=health_benefits_menu)
+health_benefits_menu.add_command(label="Manage Health Benefits", command=open_health_benefits_window)
 
 
 # Set menu bar

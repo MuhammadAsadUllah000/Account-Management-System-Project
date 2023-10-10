@@ -1,5 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, simpledialog
+import datetime
+
 
 # Counter for generating unique 1-digit IDs
 id_counter = 0
@@ -12,6 +14,8 @@ timetable_id_counter = 0
 
 # Dictionary to store employee timetables
 timetables = {}
+
+attendance_records = {}
 
 def generate_unique_id():
     global id_counter
@@ -233,8 +237,30 @@ def record_attendance():
     ttk.Checkbutton(attendance_window, text="Present", variable=present_var).grid(row=1, column=0, padx=5, pady=5, sticky='w')
     ttk.Checkbutton(attendance_window, text="Absent", variable=absent_var).grid(row=2, column=0, padx=5, pady=5, sticky='w')
 
+    def display_attendance():
+        emp_id = id_entry.get()
+        if emp_id:
+            emp_id = int(emp_id)
+            if emp_id in employees:
+                result_display.delete(1.0, tk.END)
+                if emp_id in attendance_records:
+                    result_display.insert(tk.END, f"Attendance Record for Employee ID {emp_id}:\n")
+                    for date, status in attendance_records[emp_id].items():
+                        result_display.insert(tk.END, f"Date: {date}, Status: {status}\n")
+                else:
+                    result_display.insert(tk.END, f"No attendance record found for Employee ID {emp_id}\n")
+            else:
+                result_display.delete(1.0, tk.END)
+                result_display.insert(tk.END, f"No employee found with ID '{emp_id}'\n")
+        else:
+            result_display.delete(1.0, tk.END)
+            result_display.insert(tk.END, "Please enter Employee ID\n")
+
+    display_button = ttk.Button(attendance_window, text="Display Attendance", command=display_attendance)
+    display_button.grid(row=3, column=0, columnspan=2, padx=5, pady=5)
+
     result_display = tk.Text(attendance_window, height=5, width=40)
-    result_display.grid(row=3, column=0, columnspan=3, padx=5, pady=5)
+    result_display.grid(row=4, column=0, columnspan=2, padx=5, pady=5)
 
     def save_attendance():
         emp_id = id_entry.get()
@@ -247,6 +273,11 @@ def record_attendance():
                 attendance = "Present" if present else "Absent"
                 result_display.delete(1.0, tk.END)
                 result_display.insert(tk.END, f"Attendance for Employee ID {emp_id}: {attendance}\n")
+                # Add attendance record
+                if emp_id not in attendance_records:
+                    attendance_records[emp_id] = {}
+                today = datetime.date.today().isoformat()
+                attendance_records[emp_id][today] = "Present" if present else "Absent"
             else:
                 result_display.delete(1.0, tk.END)
                 result_display.insert(tk.END, f"No employee found with ID '{emp_id}'\n")
@@ -255,7 +286,8 @@ def record_attendance():
             result_display.insert(tk.END, "Please enter Employee ID and select either 'Present' or 'Absent'\n")
 
     save_button = ttk.Button(attendance_window, text="Save Attendance", command=save_attendance)
-    save_button.grid(row=4, column=0, columnspan=2, padx=5, pady=5)
+    save_button.grid(row=5, column=0, columnspan=2, padx=5, pady=5)
+
     
 def open_add_staffing_window():
     global name_entry, experience_entry, designation_entry, salary_entry, address_entry, contact_entry, email_entry, result_display

@@ -158,14 +158,14 @@ def generate_unique_timetable_id():
     return timetable_id_counter
 
 def add_timetable():
-    global id_entry, result_display
+    global id_entry, result_display, monday_var, tuesday_var, wednesday_var, thursday_var, friday_var
 
     emp_id = id_entry.get()
     working_hours = [monday_var.get(), tuesday_var.get(), wednesday_var.get(), thursday_var.get(), friday_var.get()]
 
-    if not all([emp_id]):
+    if not all([emp_id, *working_hours]):
         result_display.delete(1.0, tk.END)
-        result_display.insert(tk.END, "Employee ID is required!")
+        result_display.insert(tk.END, "Employee ID and all working hours are required!")
         return
 
     emp_id = int(emp_id)
@@ -184,8 +184,14 @@ def add_timetable():
 
     # Clear entry fields
     id_entry.delete(0, tk.END)
+    monday_var.delete(0, tk.END)
+    tuesday_var.delete(0, tk.END)
+    wednesday_var.delete(0, tk.END)
+    thursday_var.delete(0, tk.END)
+    friday_var.delete(0, tk.END)
 
     display_employee_timetable(emp_id)
+
 
 def display_employee_timetable():
     global result_display
@@ -311,6 +317,7 @@ def open_timetable_window():
 
     result_display = tk.Text(timetable_window, height=10, width=60)
     result_display.grid(row=4, column=0, columnspan=16, padx=5, pady=5)
+
 
 # Create main window
 root = tk.Tk()

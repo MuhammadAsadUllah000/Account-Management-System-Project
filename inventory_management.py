@@ -73,13 +73,28 @@ def open_view_stock_window():
     view_stock_window = tk.Toplevel(root)
     view_stock_window.title("View Stock")
 
-    inventory_list = inventory.view_stock()
+    label = tk.Label(view_stock_window, text="Enter Product Name:")
+    entry = tk.Entry(view_stock_window)
+    entry.pack(pady=10)
+    label.pack(pady=5)
 
-    listbox = tk.Listbox(view_stock_window, width=60)
-    for product in inventory_list:
-        listbox.insert(tk.END, f"Name: {product.name}, Price: ${product.price}, Quantity: {product.quantity}, Reorder Level: {product.reorder_level}")
+    def view_product():
+        name = entry.get()
+        product = None
+        for p in inventory.products:
+            if p.name == name:
+                product = p
+                break
+        if product:
+            result_label.config(text=f"Name: {product.name}, Price: ${product.price}, Quantity: {product.quantity}, Reorder Level: {product.reorder_level}")
+        else:
+            result_label.config(text=f"No stock or product found with the name '{name}'")
 
-    listbox.pack(pady=10)
+    view_button = tk.Button(view_stock_window, text="View Product", command=view_product)
+    result_label = tk.Label(view_stock_window, text="", font=('Arial', 12))
+
+    view_button.pack(pady=10)
+    result_label.pack(pady=10)
 
 def open_record_stock_window():
     record_stock_window = tk.Toplevel(root)
@@ -92,6 +107,7 @@ def open_record_stock_window():
     quantity_entry = tk.Entry(record_stock_window)
 
     record_button = tk.Button(record_stock_window, text="Record Stock", command=lambda: record_stock(name_entry, quantity_entry))
+    display_button = tk.Button(record_stock_window, text="Display Records", command=lambda: display_records())
 
     name_label.grid(row=0, column=0)
     quantity_label.grid(row=1, column=0)
@@ -99,12 +115,24 @@ def open_record_stock_window():
     name_entry.grid(row=0, column=1)
     quantity_entry.grid(row=1, column=1)
 
-    record_button.grid(row=2, column=0, columnspan=2, pady=10)
+    record_button.grid(row=2, column=0, pady=10, padx=5)
+    display_button.grid(row=2, column=1, pady=10, padx=5)
 
 def record_stock(name_entry, quantity_entry):
     name = name_entry.get()
     quantity = int(quantity_entry.get())
     inventory.record_stock(name, quantity)
+    print(f"Recorded {quantity} units of {name}")
+
+def display_records():
+    record_window = tk.Toplevel(root)
+    record_window.title("Records")
+
+    inventory_list = inventory.view_stock()
+
+    for product in inventory_list:
+        label = tk.Label(record_window, text=f"Name: {product.name}, Quantity: {product.quantity}")
+        label.pack()
 
 def open_reorder_window():
     reorder_window = tk.Toplevel(root)
@@ -125,6 +153,7 @@ def open_product_info_window():
     name_entry = tk.Entry(product_info_window)
     name_entry.pack(pady=10)
 
+    info_button = tk.Button(product_info_window,)
     info_button = tk.Button(product_info_window, text="Get Product Information", command=lambda: product_info(name_entry.get()))
     info_button.pack(pady=10)
 
@@ -157,3 +186,4 @@ reorder_button.pack(side=tk.LEFT, padx=10)
 product_info_button.pack(side=tk.LEFT, padx=10)
 
 root.mainloop()
+

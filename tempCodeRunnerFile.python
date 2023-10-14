@@ -1,0 +1,51 @@
+import tkinter as tk
+
+class DynamicBarChart(tk.Canvas):
+    def __init__(self, master, values, *args, **kwargs):
+        super().__init__(master, *args, **kwargs)
+        self.values = values
+        self.num_values = len(values)
+        self.bar_width = 30
+        self.bar_gap = 10
+        self.max_value = max(values)
+
+        self.draw_bars()
+
+    def draw_bars(self):
+        bar_height_unit = (self.winfo_height() - 20) / self.max_value
+
+        for i, value in enumerate(self.values):
+            x0 = i * (self.bar_width + self.bar_gap) + 10
+            y0 = self.winfo_height() - value * bar_height_unit
+            x1 = x0 + self.bar_width
+            y1 = self.winfo_height() - 10
+
+            self.create_rectangle(x0, y0, x1, y1, fill="blue", outline="black")
+            self.create_text((x0 + x1) / 2, y1 + 10, text=str(value))
+
+    def update_values(self, new_values):
+        self.values = new_values
+        self.delete("all")
+        self.draw_bars()
+
+class App(tk.Tk):
+    def __init__(self):
+        super().__init__()
+
+        self.title("Dynamic Bar Chart")
+        self.geometry("400x300")
+
+        self.values = [30, 50, 20, 70, 40, 10]
+        self.bar_chart = DynamicBarChart(self, self.values, width=380, height=350)
+        self.bar_chart.pack(pady=10)
+
+        self.update_button = tk.Button(self, text="Update Values", command=self.update_chart)
+        self.update_button.pack()
+
+    def update_chart(self):
+        new_values = [60, 40, 80, 20, 90, 30]
+        self.bar_chart.update_values(new_values)
+
+if __name__ == "__main__":
+    app = App()
+    app.mainloop()

@@ -52,6 +52,24 @@ class InventoryManager:
             if product.quantity <= product.reorder_level:
                 print(f"Reorder {product.name}, Current Quantity: {product.quantity}")
 
+def add_stock(name_entry, price_entry, quantity_entry, supplier_entry, add_stock_window):
+    name = name_entry.get()
+    price = float(price_entry.get())
+    quantity = int(quantity_entry.get())
+    supplier = supplier_entry.get()
+
+    product = Product(name, price, quantity, supplier)
+    inventory.add_product(product)
+
+    # Clear the entry fields after adding stock
+    name_entry.delete(0, tk.END)
+    price_entry.delete(0, tk.END)
+    quantity_entry.delete(0, tk.END)
+    supplier_entry.delete(0, tk.END)
+
+    # Close the add stock window
+    add_stock_window.destroy()
+
 def open_add_stock_window():
     add_stock_window = tk.Toplevel(root)
     add_stock_window.title("Add Stock")
@@ -65,25 +83,12 @@ def open_add_stock_window():
                 return False
         return True
 
-    def add_stock(name_entry, price_entry, quantity_entry, supplier_entry):
+    def add_stock_and_close():
         if not validate_fields():  # Check if all fields are filled
             return
 
-        name = name_entry.get()
-        price = float(price_entry.get())
-        quantity = int(quantity_entry.get())
-        supplier = supplier_entry.get()
-
-        product = Product(name, price, quantity, supplier)
-        inventory.add_product(product)
-
-        # Clear the entry fields after adding stock
-        name_entry.delete(0, tk.END)
-        price_entry.delete(0, tk.END)
-        quantity_entry.delete(0, tk.END)
-        supplier_entry.delete(0, tk.END)
-
-        update_listbox()
+        add_stock(name_entry, price_entry, quantity_entry, supplier_entry, add_stock_window)
+        # update_listbox()  # Commented this line to prevent auto-update
 
     # Add red stars to indicate required fields
     required_label = tk.Label(add_stock_window, text="* Required Field", fg="red")
@@ -99,7 +104,7 @@ def open_add_stock_window():
     quantity_entry = tk.Entry(add_stock_window)
     supplier_entry = tk.Entry(add_stock_window)
 
-    add_button = tk.Button(add_stock_window, text="Add Stock", command=lambda: add_stock(name_entry, price_entry, quantity_entry, supplier_entry))
+    add_button = tk.Button(add_stock_window, text="Add Stock", command=add_stock_and_close)
 
     name_label.grid(row=0, column=0)
     price_label.grid(row=1, column=0)
@@ -112,17 +117,6 @@ def open_add_stock_window():
     supplier_entry.grid(row=3, column=1)
 
     add_button.grid(row=4, column=0, columnspan=2, pady=10)
-
-def add_stock(name_entry, price_entry, quantity_entry, supplier_entry):
-    name = name_entry.get()
-    price = float(price_entry.get())
-    quantity = int(quantity_entry.get())
-    supplier = supplier_entry.get()
-
-    product = Product(name, price, quantity, supplier)
-    inventory.add_product(product)
-
-    update_listbox()
 
 def open_view_stock_window():
     view_stock_window = tk.Toplevel(root)

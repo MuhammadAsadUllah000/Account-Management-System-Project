@@ -1,11 +1,11 @@
 import tkinter as tk
 
 class Product:
-    def __init__(self, name, price, quantity, reorder_level):
+    def __init__(self, name, price, quantity, supplier):
         self.name = name
         self.price = price
         self.quantity = quantity
-        self.reorder_level = reorder_level
+        self.supplier = supplier
 
 class InventoryManager:
     def __init__(self):
@@ -37,34 +37,34 @@ def open_add_stock_window():
     name_label = tk.Label(add_stock_window, text="Product Name")
     price_label = tk.Label(add_stock_window, text="Price")
     quantity_label = tk.Label(add_stock_window, text="Initial Quantity")
-    reorder_label = tk.Label(add_stock_window, text="Reorder Level")
+    supplier_label = tk.Label(add_stock_window, text="Supplier")
 
     name_entry = tk.Entry(add_stock_window)
     price_entry = tk.Entry(add_stock_window)
     quantity_entry = tk.Entry(add_stock_window)
-    reorder_entry = tk.Entry(add_stock_window)
+    supplier_entry = tk.Entry(add_stock_window)
 
-    add_button = tk.Button(add_stock_window, text="Add Stock", command=lambda: add_stock(name_entry, price_entry, quantity_entry, reorder_entry))
+    add_button = tk.Button(add_stock_window, text="Add Stock", command=lambda: add_stock(name_entry, price_entry, quantity_entry, supplier_entry))
 
     name_label.grid(row=0, column=0)
     price_label.grid(row=1, column=0)
     quantity_label.grid(row=2, column=0)
-    reorder_label.grid(row=3, column=0)
+    supplier_label.grid(row=3, column=0)
 
     name_entry.grid(row=0, column=1)
     price_entry.grid(row=1, column=1)
     quantity_entry.grid(row=2, column=1)
-    reorder_entry.grid(row=3, column=1)
+    supplier_entry.grid(row=3, column=1)
 
     add_button.grid(row=4, column=0, columnspan=2, pady=10)
 
-def add_stock(name_entry, price_entry, quantity_entry, reorder_entry):
+def add_stock(name_entry, price_entry, quantity_entry, supplier_entry):
     name = name_entry.get()
     price = float(price_entry.get())
     quantity = int(quantity_entry.get())
-    reorder_level = int(reorder_entry.get())
+    supplier = supplier_entry.get()
 
-    product = Product(name, price, quantity, reorder_level)
+    product = Product(name, price, quantity, supplier)
     inventory.add_product(product)
 
     update_listbox()
@@ -86,7 +86,7 @@ def open_view_stock_window():
                 product = p
                 break
         if product:
-            result_label.config(text=f"Name: {product.name}, Price: ${product.price}, Quantity: {product.quantity}, Reorder Level: {product.reorder_level}")
+            result_label.config(text=f"Name: {product.name}, Price: ${product.price}, Quantity: {product.quantity}, Supplier: {product.supplier}")
         else:
             result_label.config(text=f"No stock or product found with the name '{name}'")
 
@@ -131,7 +131,7 @@ def display_records():
     inventory_list = inventory.view_stock()
 
     for product in inventory_list:
-        label = tk.Label(record_window, text=f"Name: {product.name}, Quantity: {product.quantity}")
+        label = tk.Label(record_window, text=f"Name: {product.name}, Quantity: {product.quantity}, Supplier: {product.supplier}")
         label.pack()
 
 def open_reorder_window():
@@ -180,7 +180,7 @@ def open_product_info_window():
 def product_info(name):
     for product in inventory.products:
         if product.name == name:
-            print(f"Name: {product.name}, Price: ${product.price}, Quantity: {product.quantity}, Reorder Level: {product.reorder_level}")
+            print(f"Name: {product.name}, Price: ${product.price}, Quantity: {product.quantity}, Supplier: {product.supplier}")
             return
     else:
         print(f"Product '{name}' not found")
@@ -192,6 +192,7 @@ inventory = InventoryManager()
 
 root = tk.Tk()
 root.title("Inventory Management")
+
 
 add_stock_button = tk.Button(root, text="Add Stock", command=open_add_stock_window)
 view_stock_button = tk.Button(root, text="View Stock", command=update_listbox)

@@ -88,7 +88,6 @@ def open_add_stock_window():
             return
 
         add_stock(name_entry, price_entry, quantity_entry, supplier_entry, add_stock_window)
-        # update_listbox()  # Commented this line to prevent auto-update
 
     # Add red stars to indicate required fields
     required_label = tk.Label(add_stock_window, text="* Required Field", fg="red")
@@ -181,6 +180,17 @@ def display_records(record_stock_window, product_name):
 
     messagebox.showerror("Error", f"Product '{product_name}' not found.")
 
+def reorder_product(product_name, quantity, name_entry, quantity_entry, result_label):
+    for product in inventory.products:
+        if product.name == product_name:
+            product.quantity += quantity
+            print(f"Reordered {product.name}, New Quantity: {product.quantity}")
+            result_label.config(text=f"Reordered {product.name}, New Quantity: {product.quantity}")
+            name_entry.delete(0, tk.END)
+            quantity_entry.delete(0, tk.END)
+            return
+    else:
+                result_label.config(text=f"Product '{product_name}' not found")  # Display error message in the label
 
 def open_reorder_window():
     reorder_window = tk.Toplevel(root)
@@ -188,16 +198,15 @@ def open_reorder_window():
 
     inventory_list = inventory.view_stock()
 
-    def reorder_product(product_name, quantity):
-        for product in inventory.products:
-            if product.name == product_name:
-                product.quantity += quantity
-                print(f"Reordered {product.name}, New Quantity: {product.quantity}")
-                reorder_window.destroy()  # Close the reorder window after reordering
-                update_listbox()
-                return
-        else:
-            print(f"Product '{product_name}' not found")
+    def reorder_and_close():
+        product_name = name_entry.get()
+        quantity = int(quantity_entry.get())
+
+        if not product_name or not quantity:
+            messagebox.showerror("Error", "Both fields are required.")
+            return
+
+        reorder_product(product_name, quantity, name_entry, quantity_entry, result_label)
 
     name_label = tk.Label(reorder_window, text="Product Name")
     name_entry = tk.Entry(reorder_window)
@@ -209,8 +218,11 @@ def open_reorder_window():
     quantity_label.pack(pady=5)
     quantity_entry.pack(pady=5)
 
-    reorder_button = tk.Button(reorder_window, text="Reorder", command=lambda: reorder_product(name_entry.get(), int(quantity_entry.get())))
+    reorder_button = tk.Button(reorder_window, text="Reorder", command=reorder_and_close)
     reorder_button.pack(pady=10)
+
+    result_label = tk.Label(reorder_window, text="", font=('Arial', 12))
+    result_label.pack(pady=10)
 
     reorder_window.mainloop()
 
@@ -265,3 +277,4 @@ product_info_button.pack(side=tk.LEFT, padx=10)
 
 root.mainloop()
 
+       

@@ -115,32 +115,38 @@ def open_view_stock_window():
     label.pack(pady=5)
 
     def view_product():
-        name = entry.get()
-        product = None
-        for p in inventory.products:
-            if p.name == name:
-                product = p
-                break
-        if product:
-            result_frame = tk.Frame(view_stock_window)
-            result_frame.pack(pady=10)
+     name = entry.get()
+     product = None
+     for p in inventory.products:
+        if p.name == name:
+            product = p
+            break
+     if product:
+        result_frame = tk.Frame(view_stock_window)
+        result_frame.pack(pady=10)
 
-            tk.Label(result_frame, text="Name:").grid(row=0, column=0, sticky='w')
-            tk.Label(result_frame, text=product.name).grid(row=0, column=1, sticky='w')
+        tk.Label(result_frame, text="Name:").grid(row=0, column=0, sticky='w')
+        tk.Label(result_frame, text=product.name).grid(row=0, column=1, sticky='w')
 
-            tk.Label(result_frame, text="Price:").grid(row=1, column=0, sticky='w')
-            tk.Label(result_frame, text=f"${product.price}").grid(row=1, column=1, sticky='w')
+        tk.Label(result_frame, text="Price:").grid(row=1, column=0, sticky='w')
+        tk.Label(result_frame, text=f"${product.price}").grid(row=1, column=1, sticky='w')
 
-            tk.Label(result_frame, text="Quantity:").grid(row=2, column=0, sticky='w')
-            tk.Label(result_frame, text=product.quantity).grid(row=2, column=1, sticky='w')
+        tk.Label(result_frame, text="Quantity:").grid(row=2, column=0, sticky='w')
+        tk.Label(result_frame, text=product.quantity).grid(row=2, column=1, sticky='w')
 
-            tk.Label(result_frame, text="Supplier:").grid(row=3, column=0, sticky='w')
-            tk.Label(result_frame, text=product.supplier).grid(row=3, column=1, sticky='w')
+        tk.Label(result_frame, text="Supplier:").grid(row=3, column=0, sticky='w')
+        tk.Label(result_frame, text=product.supplier).grid(row=3, column=1, sticky='w')
 
-            tk.Label(result_frame, text="Image Path:").grid(row=4, column=0, sticky='w')
-            tk.Label(result_frame, text=product.image_path).grid(row=4, column=1, sticky='w')
-        else:
-            messagebox.showerror("Error", f"No stock or product found with the name '{name}'")
+        # Display the image in a small box
+        img = tk.PhotoImage(file=product.image_path)
+        img = img.subsample(2)  # Resize the image (adjust the factor as needed)
+        img_label = tk.Label(result_frame, image=img)
+        img_label.image = img  # Keep a reference to prevent garbage collection
+        img_label.grid(row=4, column=0, columnspan=2, pady=5)
+
+     else:
+        messagebox.showerror("Error", f"No stock or product found with the name '{name}'")
+
 
     view_button = tk.Button(view_stock_window, text="View Product", command=view_product)
     view_button.pack(pady=10)

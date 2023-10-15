@@ -9,7 +9,7 @@ class Product:
         self.price = price
         self.quantity = quantity
         self.supplier = supplier
-        self.purchased_quantity = 0
+        self.purchased_quantity = quantity  # Set purchased_quantity to the initial quantity
         self.sold_quantity = 0
         self.image_path = image_path
 
@@ -64,6 +64,7 @@ def add_stock(name_entry, price_entry, quantity_entry, supplier_entry, add_stock
     supplier_entry.delete(0, tk.END)
 
     add_stock_window.destroy()
+
 
 def open_add_stock_window():
     add_stock_window = tk.Toplevel(root)

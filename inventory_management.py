@@ -1,4 +1,6 @@
 import tkinter as tk
+from tkinter import messagebox
+import matplotlib.pyplot as plt
 
 class Product:
     def __init__(self, name, price, quantity, supplier):
@@ -6,6 +8,26 @@ class Product:
         self.price = price
         self.quantity = quantity
         self.supplier = supplier
+        self.purchased_quantity = 0
+        self.sold_quantity = 0
+
+    def purchase(self, quantity):
+        self.quantity += quantity
+        self.purchased_quantity += quantity
+
+    def sell(self, quantity):
+        if self.quantity >= quantity:
+            self.quantity -= quantity
+            self.sold_quantity += quantity
+        else:
+            messagebox.showerror("Error", "Insufficient quantity in stock.")
+
+    @property
+    def remaining_quantity(self):
+        return self.quantity
+
+    def __str__(self):
+        return f"Name: {self.name}, Price: ${self.price}, Quantity: {self.quantity}, Supplier: {self.supplier}"
 
 class InventoryManager:
     def __init__(self):
@@ -20,8 +42,8 @@ class InventoryManager:
     def record_stock(self, product_name, quantity):
         for product in self.products:
             if product.name == product_name:
-                product.quantity += quantity
-                print(f"Recorded {quantity} units of {product_name}")
+                product.purchase(quantity)
+                print(f"Purchased {quantity} units of {product_name}")
                 return
         print(f"Product '{product_name}' not found")
 
@@ -101,22 +123,13 @@ def open_record_stock_window():
     record_stock_window.title("Record Stock")
 
     name_label = tk.Label(record_stock_window, text="Product Name")
-    quantity_label = tk.Label(record_stock_window, text="Quantity")
-
     name_entry = tk.Entry(record_stock_window)
-    quantity_entry = tk.Entry(record_stock_window)
-
-    record_button = tk.Button(record_stock_window, text="Record Stock", command=lambda: record_stock(name_entry, quantity_entry))
-    display_button = tk.Button(record_stock_window, text="Display Records", command=lambda: display_records())
 
     name_label.grid(row=0, column=0)
-    quantity_label.grid(row=1, column=0)
-
     name_entry.grid(row=0, column=1)
-    quantity_entry.grid(row=1, column=1)
 
-    record_button.grid(row=2, column=0, pady=10, padx=5)
-    display_button.grid(row=2, column=1, pady=10, padx=5)
+    display_button = tk.Button(record_stock_window, text="Display Records", command=lambda: display_records(record_stock_window, name_entry.get()))
+    display_button.grid(row=1, columnspan=2, pady=10)
 
 def record_stock(name_entry, quantity_entry):
     name = name_entry.get()
@@ -124,15 +137,22 @@ def record_stock(name_entry, quantity_entry):
     inventory.record_stock(name, quantity)
     print(f"Recorded {quantity} units of {name}")
 
-def display_records():
-    record_window = tk.Toplevel(root)
-    record_window.title("Records")
+def display_records(record_stock_window, product_name):
+    for product in inventory.products:
+        if product.name == product_name:
+            labels = ['Purchased', 'Sold', 'Remaining']
+            quantities = [product.purchased_quantity, product.sold_quantity, product.remaining_quantity]
 
-    inventory_list = inventory.view_stock()
+            plt.figure(figsize=(8, 6))
+            plt.bar(labels, quantities, color=['blue', 'green', 'red'])
+            plt.xlabel('Operation')
+            plt.ylabel('Quantity')
+            plt.title(f'Records for {product.name}')
+            plt.show()
+            return
 
-    for product in inventory_list:
-        label = tk.Label(record_window, text=f"Name: {product.name}, Quantity: {product.quantity}, Supplier: {product.supplier}")
-        label.pack()
+    messagebox.showerror("Error", f"Product '{product_name}' not found.")
+
 
 def open_reorder_window():
     reorder_window = tk.Toplevel(root)

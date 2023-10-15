@@ -194,16 +194,24 @@ def open_product_info_window():
     name_entry = tk.Entry(product_info_window)
     name_entry.pack(pady=10)
 
-    info_button = tk.Button(product_info_window, text="Get Product Information", command=lambda: product_info(name_entry.get()))
+    info_label = tk.Label(product_info_window, text="", font=('Arial', 12))
+    info_label.pack(pady=10)
+
+    info_button = tk.Button(product_info_window, text="Get Product Information", command=lambda: product_info(name_entry.get(), info_label))
     info_button.pack(pady=10)
 
-def product_info(name):
+def product_info(name, info_label):
+    info = ""
     for product in inventory.products:
         if product.name == name:
-            print(f"Name: {product.name}, Price: ${product.price}, Quantity: {product.quantity}, Supplier: {product.supplier}")
-            return
+            info = f"Name: {product.name}, Price: ${product.price}, Quantity: {product.quantity}, Supplier: {product.supplier}"
+            break
+
+    if info:
+        info_label.config(text=info)  # Update label in the GUI
     else:
-        print(f"Product '{name}' not found")
+        error_message = f"Product '{name}' not found"
+        info_label.config(text=error_message)  # Display error message in the label
 
 def update_listbox():
     open_view_stock_window()

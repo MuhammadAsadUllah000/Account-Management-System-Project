@@ -75,10 +75,10 @@ def open_add_stock_window():
         image_path = filedialog.askopenfilename(filetypes=[("Image files", "*.png;*.jpg;*.jpeg")])
         image_label.config(text=f"Image Path: {image_path}")
 
-    name_label = tk.Label(add_stock_window, text="Product Name")
-    price_label = tk.Label(add_stock_window, text="Price")
-    quantity_label = tk.Label(add_stock_window, text="Initial Quantity")
-    supplier_label = tk.Label(add_stock_window, text="Supplier")
+    name_label = tk.Label(add_stock_window, text="Product Name*")
+    price_label = tk.Label(add_stock_window, text="Price*")
+    quantity_label = tk.Label(add_stock_window, text="Purchased Quantity*")
+    supplier_label = tk.Label(add_stock_window, text="Supplier*")
 
     name_entry = tk.Entry(add_stock_window)
     price_entry = tk.Entry(add_stock_window)
@@ -89,6 +89,7 @@ def open_add_stock_window():
     add_button = tk.Button(add_stock_window, text="Add Stock", command=lambda: add_stock(name_entry, price_entry, quantity_entry, supplier_entry, add_stock_window, image_path))
 
     required_label = tk.Label(add_stock_window, text="* Required Field", fg="red")
+    required_label.grid(row=7, column=0, columnspan=2, sticky="w", pady=5)
 
     required_label.grid(row=0, column=2, sticky="w")
     name_label.grid(row=0, column=0)

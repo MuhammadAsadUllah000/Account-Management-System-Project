@@ -56,6 +56,39 @@ def open_add_stock_window():
     add_stock_window = tk.Toplevel(root)
     add_stock_window.title("Add Stock")
 
+    # Define a validation function to check if the fields are filled
+    def validate_fields():
+        required_fields = [(name_entry, "Product Name"), (price_entry, "Price"), (quantity_entry, "Initial Quantity"), (supplier_entry, "Supplier")]
+        for entry, label_text in required_fields:
+            if not entry.get():
+                messagebox.showerror("Error", f"{label_text} is required.")
+                return False
+        return True
+
+    def add_stock(name_entry, price_entry, quantity_entry, supplier_entry):
+        if not validate_fields():  # Check if all fields are filled
+            return
+
+        name = name_entry.get()
+        price = float(price_entry.get())
+        quantity = int(quantity_entry.get())
+        supplier = supplier_entry.get()
+
+        product = Product(name, price, quantity, supplier)
+        inventory.add_product(product)
+
+        # Clear the entry fields after adding stock
+        name_entry.delete(0, tk.END)
+        price_entry.delete(0, tk.END)
+        quantity_entry.delete(0, tk.END)
+        supplier_entry.delete(0, tk.END)
+
+        update_listbox()
+
+    # Add red stars to indicate required fields
+    required_label = tk.Label(add_stock_window, text="* Required Field", fg="red")
+    required_label.grid(row=0, column=2, sticky="w")
+
     name_label = tk.Label(add_stock_window, text="Product Name")
     price_label = tk.Label(add_stock_window, text="Price")
     quantity_label = tk.Label(add_stock_window, text="Initial Quantity")
@@ -111,6 +144,7 @@ def open_view_stock_window():
             result_label.config(text=f"Name: {product.name}, Price: ${product.price}, Quantity: {product.quantity}, Supplier: {product.supplier}")
         else:
             result_label.config(text=f"No stock or product found with the name '{name}'")
+
 
     view_button = tk.Button(view_stock_window, text="View Product", command=view_product)
     result_label = tk.Label(view_stock_window, text="", font=('Arial', 12))

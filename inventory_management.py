@@ -140,10 +140,31 @@ def open_reorder_window():
 
     inventory_list = inventory.view_stock()
 
-    for product in inventory_list:
-        if product.quantity <= product.reorder_level:
-            label = tk.Label(reorder_window, text=f"Reorder {product.name}, Current Quantity: {product.quantity}")
-            label.pack()
+    def reorder_product(product_name, quantity):
+        for product in inventory.products:
+            if product.name == product_name:
+                product.quantity += quantity
+                print(f"Reordered {product.name}, New Quantity: {product.quantity}")
+                reorder_window.destroy()  # Close the reorder window after reordering
+                update_listbox()
+                return
+        else:
+            print(f"Product '{product_name}' not found")
+
+    name_label = tk.Label(reorder_window, text="Product Name")
+    name_entry = tk.Entry(reorder_window)
+    name_label.pack(pady=5)
+    name_entry.pack(pady=5)
+
+    quantity_label = tk.Label(reorder_window, text="Reorder Quantity")
+    quantity_entry = tk.Entry(reorder_window)
+    quantity_label.pack(pady=5)
+    quantity_entry.pack(pady=5)
+
+    reorder_button = tk.Button(reorder_window, text="Reorder", command=lambda: reorder_product(name_entry.get(), int(quantity_entry.get())))
+    reorder_button.pack(pady=10)
+
+    reorder_window.mainloop()
 
 def open_product_info_window():
     product_info_window = tk.Toplevel(root)
@@ -153,7 +174,6 @@ def open_product_info_window():
     name_entry = tk.Entry(product_info_window)
     name_entry.pack(pady=10)
 
-    info_button = tk.Button(product_info_window,)
     info_button = tk.Button(product_info_window, text="Get Product Information", command=lambda: product_info(name_entry.get()))
     info_button.pack(pady=10)
 
@@ -178,6 +198,7 @@ view_stock_button = tk.Button(root, text="View Stock", command=update_listbox)
 record_stock_button = tk.Button(root, text="Record Stock", command=open_record_stock_window)
 reorder_button = tk.Button(root, text="Reordering", command=open_reorder_window)
 product_info_button = tk.Button(root, text="Product Information", command=open_product_info_window)
+
 
 add_stock_button.pack(side=tk.LEFT, padx=10)
 view_stock_button.pack(side=tk.LEFT, padx=10)

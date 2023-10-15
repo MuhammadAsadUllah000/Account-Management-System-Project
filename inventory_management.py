@@ -134,16 +134,28 @@ def open_view_stock_window():
                 product = p
                 break
         if product:
-            result_label.config(text=f"Name: {product.name}, Price: ${product.price}, Quantity: {product.quantity}, Supplier: {product.supplier}")
-        else:
-            result_label.config(text=f"No stock or product found with the name '{name}'")
+            result_frame = tk.Frame(view_stock_window)
+            result_frame.pack(pady=10)
 
+            tk.Label(result_frame, text="Name:").grid(row=0, column=0, sticky='w')
+            tk.Label(result_frame, text=product.name).grid(row=0, column=1, sticky='w')
+
+            tk.Label(result_frame, text="Price:").grid(row=1, column=0, sticky='w')
+            tk.Label(result_frame, text=f"${product.price}").grid(row=1, column=1, sticky='w')
+
+            tk.Label(result_frame, text="Quantity:").grid(row=2, column=0, sticky='w')
+            tk.Label(result_frame, text=product.quantity).grid(row=2, column=1, sticky='w')
+
+            tk.Label(result_frame, text="Supplier:").grid(row=3, column=0, sticky='w')
+            tk.Label(result_frame, text=product.supplier).grid(row=3, column=1, sticky='w')
+        else:
+            messagebox.showerror("Error", f"No stock or product found with the name '{name}'")
 
     view_button = tk.Button(view_stock_window, text="View Product", command=view_product)
-    result_label = tk.Label(view_stock_window, text="", font=('Arial', 12))
-
     view_button.pack(pady=10)
-    result_label.pack(pady=10)
+
+    view_stock_window.mainloop()
+
 
 def open_record_stock_window():
     record_stock_window = tk.Toplevel(root)

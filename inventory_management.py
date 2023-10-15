@@ -1,15 +1,16 @@
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import filedialog, messagebox
 import matplotlib.pyplot as plt
 
 class Product:
-    def __init__(self, name, price, quantity, supplier):
+    def __init__(self, name, price, quantity, supplier, image_path):
         self.name = name
         self.price = price
         self.quantity = quantity
         self.supplier = supplier
         self.purchased_quantity = 0
         self.sold_quantity = 0
+        self.image_path = image_path
 
     def purchase(self, quantity):
         self.quantity += quantity
@@ -47,51 +48,30 @@ class InventoryManager:
                 return
         print(f"Product '{product_name}' not found")
 
-    def reordering(self):
-        for product in self.products:
-            if product.quantity <= product.reorder_level:
-                print(f"Reorder {product.name}, Current Quantity: {product.quantity}")
-
-def add_stock(name_entry, price_entry, quantity_entry, supplier_entry, add_stock_window):
+def add_stock(name_entry, price_entry, quantity_entry, supplier_entry, add_stock_window, image_path):
     name = name_entry.get()
     price = float(price_entry.get())
     quantity = int(quantity_entry.get())
     supplier = supplier_entry.get()
 
-    product = Product(name, price, quantity, supplier)
+    product = Product(name, price, quantity, supplier, image_path)
     inventory.add_product(product)
 
-    # Clear the entry fields after adding stock
     name_entry.delete(0, tk.END)
     price_entry.delete(0, tk.END)
     quantity_entry.delete(0, tk.END)
     supplier_entry.delete(0, tk.END)
 
-    # Close the add stock window
     add_stock_window.destroy()
 
 def open_add_stock_window():
     add_stock_window = tk.Toplevel(root)
     add_stock_window.title("Add Stock")
 
-    # Define a validation function to check if the fields are filled
-    def validate_fields():
-        required_fields = [(name_entry, "Product Name"), (price_entry, "Price"), (quantity_entry, "Initial Quantity"), (supplier_entry, "Supplier")]
-        for entry, label_text in required_fields:
-            if not entry.get():
-                messagebox.showerror("Error", f"{label_text} is required.")
-                return False
-        return True
-
-    def add_stock_and_close():
-        if not validate_fields():  # Check if all fields are filled
-            return
-
-        add_stock(name_entry, price_entry, quantity_entry, supplier_entry, add_stock_window)
-
-    # Add red stars to indicate required fields
-    required_label = tk.Label(add_stock_window, text="* Required Field", fg="red")
-    required_label.grid(row=0, column=2, sticky="w")
+    def add_image():
+        global image_path
+        image_path = filedialog.askopenfilename(filetypes=[("Image files", "*.png;*.jpg;*.jpeg")])
+        image_label.config(text=f"Image Path: {image_path}")
 
     name_label = tk.Label(add_stock_window, text="Product Name")
     price_label = tk.Label(add_stock_window, text="Price")
@@ -103,8 +83,12 @@ def open_add_stock_window():
     quantity_entry = tk.Entry(add_stock_window)
     supplier_entry = tk.Entry(add_stock_window)
 
-    add_button = tk.Button(add_stock_window, text="Add Stock", command=add_stock_and_close)
+    add_image_button = tk.Button(add_stock_window, text="Add Image", command=add_image)
+    add_button = tk.Button(add_stock_window, text="Add Stock", command=lambda: add_stock(name_entry, price_entry, quantity_entry, supplier_entry, add_stock_window, image_path))
 
+    required_label = tk.Label(add_stock_window, text="* Required Field", fg="red")
+
+    required_label.grid(row=0, column=2, sticky="w")
     name_label.grid(row=0, column=0)
     price_label.grid(row=1, column=0)
     quantity_label.grid(row=2, column=0)
@@ -115,7 +99,11 @@ def open_add_stock_window():
     quantity_entry.grid(row=2, column=1)
     supplier_entry.grid(row=3, column=1)
 
-    add_button.grid(row=4, column=0, columnspan=2, pady=10)
+    add_image_button.grid(row=4, column=0, columnspan=2, pady=10)
+    add_button.grid(row=5, column=0, columnspan=2, pady=10)
+
+    image_label = tk.Label(add_stock_window, text="Image Path:")
+    image_label.grid(row=6, column=0, columnspan=2, pady=5)
 
 def open_view_stock_window():
     view_stock_window = tk.Toplevel(root)
@@ -148,14 +136,14 @@ def open_view_stock_window():
 
             tk.Label(result_frame, text="Supplier:").grid(row=3, column=0, sticky='w')
             tk.Label(result_frame, text=product.supplier).grid(row=3, column=1, sticky='w')
+
+            tk.Label(result_frame, text="Image Path:").grid(row=4, column=0, sticky='w')
+            tk.Label(result_frame, text=product.image_path).grid(row=4, column=1, sticky='w')
         else:
             messagebox.showerror("Error", f"No stock or product found with the name '{name}'")
 
     view_button = tk.Button(view_stock_window, text="View Product", command=view_product)
     view_button.pack(pady=10)
-
-    view_stock_window.mainloop()
-
 
 def open_record_stock_window():
     record_stock_window = tk.Toplevel(root)
@@ -236,8 +224,6 @@ def open_reorder_window():
     result_label = tk.Label(reorder_window, text="", font=('Arial', 12))
     result_label.pack(pady=10)
 
-    reorder_window.mainloop()
-
 def open_product_info_window():
     product_info_window = tk.Toplevel(root)
     product_info_window.title("Product Information")
@@ -268,25 +254,22 @@ def product_info(name, info_label):
 def update_listbox():
     open_view_stock_window()
 
-inventory = InventoryManager()
+if __name__ == "__main__":
+    inventory = InventoryManager()
 
-root = tk.Tk()
-root.title("Inventory Management")
+    root = tk.Tk()
+    root.title("Inventory Management")
 
+    add_stock_button = tk.Button(root, text="Add Stock", command=open_add_stock_window)
+    view_stock_button = tk.Button(root, text="View Stock", command=update_listbox)
+    record_stock_button = tk.Button(root, text="Record Stock", command=open_record_stock_window)
+    reorder_button = tk.Button(root, text="Reordering", command=open_reorder_window)
+    product_info_button = tk.Button(root, text="Product Information", command=open_product_info_window)
 
-add_stock_button = tk.Button(root, text="Add Stock", command=open_add_stock_window)
-view_stock_button = tk.Button(root, text="View Stock", command=update_listbox)
-record_stock_button = tk.Button(root, text="Record Stock", command=open_record_stock_window)
-reorder_button = tk.Button(root, text="Reordering", command=open_reorder_window)
-product_info_button = tk.Button(root, text="Product Information", command=open_product_info_window)
+    add_stock_button.pack(side=tk.LEFT, padx=10)
+    view_stock_button.pack(side=tk.LEFT, padx=10)
+    record_stock_button.pack(side=tk.LEFT, padx=10)
+    reorder_button.pack(side=tk.LEFT, padx=10)
+    product_info_button.pack(side=tk.LEFT, padx=10)
 
-
-add_stock_button.pack(side=tk.LEFT, padx=10)
-view_stock_button.pack(side=tk.LEFT, padx=10)
-record_stock_button.pack(side=tk.LEFT, padx=10)
-reorder_button.pack(side=tk.LEFT, padx=10)
-product_info_button.pack(side=tk.LEFT, padx=10)
-
-root.mainloop()
-
-       
+    root.mainloop()

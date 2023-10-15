@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox
 import matplotlib.pyplot as plt
+from PIL import Image, ImageTk
 
 class Product:
     def __init__(self, name, price, quantity, supplier, image_path):
@@ -138,14 +139,16 @@ def open_view_stock_window():
         tk.Label(result_frame, text=product.supplier).grid(row=3, column=1, sticky='w')
 
         # Display the image in a small box
-        img = tk.PhotoImage(file=product.image_path)
-        img = img.subsample(2)  # Resize the image (adjust the factor as needed)
-        img_label = tk.Label(result_frame, image=img)
-        img_label.image = img  # Keep a reference to prevent garbage collection
+        img = Image.open(product.image_path)
+        img = img.resize((100, 100))  # Resize the image
+        photo = ImageTk.PhotoImage(img)
+        img_label = tk.Label(result_frame, image=photo)
+        img_label.image = photo  # Keep a reference to prevent garbage collection
         img_label.grid(row=4, column=0, columnspan=2, pady=5)
 
      else:
         messagebox.showerror("Error", f"No stock or product found with the name '{name}'")
+
 
 
     view_button = tk.Button(view_stock_window, text="View Product", command=view_product)

@@ -34,7 +34,7 @@ class CRMApp:
         self.add_customer_button = tk.Button(self.main_frame, text="Add Customer", command=self.show_add_customer_window)
         self.display_customer_button = tk.Button(self.main_frame, text="Display Customer", command=self.show_display_customer_window)
         self.add_sale_button = tk.Button(self.main_frame, text="Add Sale", command=self.add_sale)
-        self.add_campaign_button = tk.Button(self.main_frame, text="Add Campaign", command=self.add_campaign)
+        self.add_campaign_button = tk.Button(self.main_frame, text="Add Campaign", command=self.show_add_campaign_window)
 
         self.add_customer_button.grid(row=0, column=0, pady=5)
         self.display_customer_button.grid(row=1, column=0, pady=5)
@@ -114,6 +114,41 @@ class CRMApp:
 
         if not found:
             tk.messagebox.showerror("Error", f"No customer found with the name '{name}'")
+    def show_add_campaign_window(self):
+        self.add_campaign_window = tk.Toplevel()
+        self.add_campaign_window.title("Add Campaign")
+
+        self.inventory_label = tk.Label(self.add_campaign_window, text="Inventory Name")
+        self.discount_label = tk.Label(self.add_campaign_window, text="Discount Sale")
+        self.campaign_detail_label = tk.Label(self.add_campaign_window, text="Campaign Detail")
+
+        self.inventory_options = ["Item A", "Item B", "Item C"]  # Replace with actual inventory options
+        self.discount_options = ["10%", "20%", "30%"]  # Replace with actual discount options
+        self.campaign_detail_options = ["Winter Sale", "Spring Sale", "Summer Sale"]  # Replace with actual campaign detail options
+
+        self.inventory_var = tk.StringVar(self.add_campaign_window)
+        self.discount_var = tk.StringVar(self.add_campaign_window)
+        self.campaign_detail_var = tk.StringVar(self.add_campaign_window)
+
+        self.inventory_var.set(self.inventory_options[0])
+        self.discount_var.set(self.discount_options[0])
+        self.campaign_detail_var.set(self.campaign_detail_options[0])
+
+        self.inventory_menu = tk.OptionMenu(self.add_campaign_window, self.inventory_var, *self.inventory_options)
+        self.discount_menu = tk.OptionMenu(self.add_campaign_window, self.discount_var, *self.discount_options)
+        self.campaign_detail_menu = tk.OptionMenu(self.add_campaign_window, self.campaign_detail_var, *self.campaign_detail_options)
+
+        self.add_campaign_button = tk.Button(self.add_campaign_window, text="Add Campaign", command=self.add_campaign)
+
+        self.inventory_label.grid(row=0, column=0, padx=10, pady=5, sticky=tk.W)
+        self.discount_label.grid(row=1, column=0, padx=10, pady=5, sticky=tk.W)
+        self.campaign_detail_label.grid(row=2, column=0, padx=10, pady=5, sticky=tk.W)
+
+        self.inventory_menu.grid(row=0, column=1, padx=10, pady=5)
+        self.discount_menu.grid(row=1, column=1, padx=10, pady=5)
+        self.campaign_detail_menu.grid(row=2, column=1, padx=10, pady=5)
+
+        self.add_campaign_button.grid(row=3, column=0, columnspan=2, padx=10, pady=5, sticky=tk.W+tk.E)
 
     def add_sale(self):
         # Add code to retrieve customer, product, and amount
@@ -125,13 +160,12 @@ class CRMApp:
         print(f"Added sale: {customer.name} purchased {product} for {amount} USD")
 
     def add_campaign(self):
-        # Add code to retrieve inventory name, discount sale, and campaign details
-        inventory_name = "Inventory X"  # Example: Replace with actual inventory selection
-        discount_sale = 0.2  # Example: Replace with actual discount
-        campaign_details = "Summer Sale"  # Example: Replace with actual campaign details
+        inventory_name = self.inventory_var.get()
+        discount_sale = self.discount_var.get()
+        campaign_details = self.campaign_detail_var.get()
 
         self.marketing_campaigns.add_campaign(inventory_name, discount_sale, campaign_details)
-        print(f"Added campaign: {campaign_details} with {discount_sale*100}% off on {inventory_name}")
+        print(f"Added campaign: {campaign_details} with {discount_sale} off on {inventory_name}")
 
 if __name__ == "__main__":
     root = tk.Tk()

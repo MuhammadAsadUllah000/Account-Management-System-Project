@@ -1,10 +1,11 @@
 import tkinter as tk
 
 class Customer:
-    def __init__(self, name, email, phone):
+    def __init__(self, name, email, phone, address):
         self.name = name
         self.email = email
         self.phone = phone
+        self.address = address
 
 class SalesHistory:
     def __init__(self):
@@ -26,31 +27,51 @@ class CRMApp:
         self.sales_history = SalesHistory()
         self.marketing_campaigns = MarketingCampaigns()
 
-        self.name_entry = tk.Entry(root, width=30)
-        self.email_entry = tk.Entry(root, width=30)
-        self.phone_entry = tk.Entry(root, width=30)
+        self.add_customer_window = tk.Toplevel()
+        self.add_customer_window.title("Add Customer")
 
-        self.add_customer_button = tk.Button(root, text="Add Customer", command=self.add_customer)
-        self.add_sale_button = tk.Button(root, text="Add Sale", command=self.add_sale)
-        self.add_campaign_button = tk.Button(root, text="Add Campaign", command=self.add_campaign)
+        self.name_label = tk.Label(self.add_customer_window, text="Name")
+        self.email_label = tk.Label(self.add_customer_window, text="Email")
+        self.phone_label = tk.Label(self.add_customer_window, text="Phone")
+        self.address_label = tk.Label(self.add_customer_window, text="Address")
+
+        self.name_entry = tk.Entry(self.add_customer_window, width=30)
+        self.email_entry = tk.Entry(self.add_customer_window, width=30)
+        self.phone_entry = tk.Entry(self.add_customer_window, width=30)
+        self.address_entry = tk.Entry(self.add_customer_window, width=30)
+
+        self.add_customer_button = tk.Button(self.add_customer_window, text="Add Customer", command=self.add_customer)
+
+        self.name_label.grid(row=0, column=0, padx=10, pady=5, sticky=tk.W)
+        self.email_label.grid(row=1, column=0, padx=10, pady=5, sticky=tk.W)
+        self.phone_label.grid(row=2, column=0, padx=10, pady=5, sticky=tk.W)
+        self.address_label.grid(row=3, column=0, padx=10, pady=5, sticky=tk.W)
 
         self.name_entry.grid(row=0, column=1, padx=10, pady=5)
         self.email_entry.grid(row=1, column=1, padx=10, pady=5)
         self.phone_entry.grid(row=2, column=1, padx=10, pady=5)
+        self.address_entry.grid(row=3, column=1, padx=10, pady=5)
 
-        self.add_customer_button.grid(row=3, column=0, columnspan=2, padx=10, pady=5, sticky=tk.W+tk.E)
-        self.add_sale_button.grid(row=4, column=0, columnspan=2, padx=10, pady=5, sticky=tk.W+tk.E)
-        self.add_campaign_button.grid(row=5, column=0, columnspan=2, padx=10, pady=5, sticky=tk.W+tk.E)
+        self.add_customer_button.grid(row=4, column=0, columnspan=2, padx=10, pady=5, sticky=tk.W+tk.E)
+
+        self.add_sale_button = tk.Button(root, text="Add Sale", command=self.add_sale)
+        self.add_campaign_button = tk.Button(root, text="Add Campaign", command=self.add_campaign)
+
+        self.add_sale_button.grid(row=5, column=0, columnspan=2, padx=10, pady=5, sticky=tk.W+tk.E)
+        self.add_campaign_button.grid(row=6, column=0, columnspan=2, padx=10, pady=5, sticky=tk.W+tk.E)
 
     def add_customer(self):
         name = self.name_entry.get()
         email = self.email_entry.get()
         phone = self.phone_entry.get()
+        address = self.address_entry.get()
 
-        customer = Customer(name, email, phone)
+        customer = Customer(name, email, phone, address)
         self.customers.append(customer)
 
-        print(f"Added customer: {name}, Email: {email}, Phone: {phone}")
+        print(f"Added customer: {name}, Email: {email}, Phone: {phone}, Address: {address}")
+
+        self.add_customer_window.destroy()  # Close the "Add Customer" window after saving
 
     def add_sale(self):
         # Add code to retrieve customer, product, and amount

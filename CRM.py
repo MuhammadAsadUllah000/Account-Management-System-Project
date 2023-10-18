@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import messagebox 
 
 class Customer:
     def __init__(self, name, email, phone, address):
@@ -31,12 +32,12 @@ class CRMApp:
         self.main_frame.pack(padx=20, pady=20)
 
         self.add_customer_button = tk.Button(self.main_frame, text="Add Customer", command=self.show_add_customer_window)
-        self.display_customers_button = tk.Button(self.main_frame, text="Display Customers", command=self.display_customers)
+        self.display_customer_button = tk.Button(self.main_frame, text="Display Customer", command=self.show_display_customer_window)
         self.add_sale_button = tk.Button(self.main_frame, text="Add Sale", command=self.add_sale)
         self.add_campaign_button = tk.Button(self.main_frame, text="Add Campaign", command=self.add_campaign)
 
         self.add_customer_button.grid(row=0, column=0, pady=5)
-        self.display_customers_button.grid(row=1, column=0, pady=5)
+        self.display_customer_button.grid(row=1, column=0, pady=5)
         self.add_sale_button.grid(row=2, column=0, pady=5)
         self.add_campaign_button.grid(row=3, column=0, pady=5)
 
@@ -74,6 +75,10 @@ class CRMApp:
         phone = self.phone_entry.get()
         address = self.address_entry.get()
 
+        if not name or not email or not phone or not address:
+            tk.messagebox.showerror("Error", "All fields are required!")
+            return
+
         customer = Customer(name, email, phone, address)
         self.customers.append(customer)
 
@@ -81,16 +86,34 @@ class CRMApp:
 
         self.add_customer_window.destroy()  # Close the "Add Customer" window after saving
 
-    def display_customers(self):
-        display_window = tk.Toplevel()
-        display_window.title("Customer Information")
+    def show_display_customer_window(self):
+        self.display_customer_window = tk.Toplevel()
+        self.display_customer_window.title("Display Customer")
 
+        self.name_label = tk.Label(self.display_customer_window, text="Customer Name")
+        self.name_entry = tk.Entry(self.display_customer_window, width=30)
+        self.display_button = tk.Button(self.display_customer_window, text="Display", command=self.display_customer)
+
+        self.name_label.grid(row=0, column=0, padx=10, pady=5, sticky=tk.W)
+        self.name_entry.grid(row=0, column=1, padx=10, pady=5)
+        self.display_button.grid(row=1, column=0, columnspan=2, pady=5)
+
+    def display_customer(self):
+        name = self.name_entry.get()
+
+        if not name:
+            tk.messagebox.showerror("Error", "Please enter a customer name!")
+            return
+
+        found = False
         for customer in self.customers:
-            tk.Label(display_window, text=f"Name: {customer.name}").pack()
-            tk.Label(display_window, text=f"Email: {customer.email}").pack()
-            tk.Label(display_window, text=f"Phone: {customer.phone}").pack()
-            tk.Label(display_window, text=f"Address: {customer.address}").pack()
-            tk.Label(display_window, text="-------------------------").pack()
+            if customer.name == name:
+                found = True
+                tk.messagebox.showinfo("Customer Information", f"Name: {customer.name}\nEmail: {customer.email}\nPhone: {customer.phone}\nAddress: {customer.address}")
+                break
+
+        if not found:
+            tk.messagebox.showerror("Error", f"No customer found with the name '{name}'")
 
     def add_sale(self):
         # Add code to retrieve customer, product, and amount

@@ -33,12 +33,12 @@ class CRMApp:
 
         self.add_customer_button = tk.Button(self.main_frame, text="Add Customer", command=self.show_add_customer_window)
         self.display_customer_button = tk.Button(self.main_frame, text="Display Customer", command=self.show_display_customer_window)
-        self.add_sale_button = tk.Button(self.main_frame, text="Add Sale", command=self.add_sale)
+        self.sales_history_button = tk.Button(self.main_frame, text="Sales History", command=self.show_sales_history_window)
         self.add_campaign_button = tk.Button(self.main_frame, text="Add Campaign", command=self.show_add_campaign_window)
 
         self.add_customer_button.grid(row=0, column=0, pady=5)
         self.display_customer_button.grid(row=1, column=0, pady=5)
-        self.add_sale_button.grid(row=2, column=0, pady=5)
+        self.sales_history_button.grid(row=2, column=0, pady=5)
         self.add_campaign_button.grid(row=3, column=0, pady=5)
 
     def show_add_customer_window(self):
@@ -150,14 +150,9 @@ class CRMApp:
 
         self.add_campaign_button.grid(row=3, column=0, columnspan=2, padx=10, pady=5, sticky=tk.W+tk.E)
 
-    def add_sale(self):
-        # Add code to retrieve customer, product, and amount
-        customer = self.customers[0]  # Example: Using the first customer for simplicity
-        product = "Product A"  # Example: Replace with actual product selection
-        amount = 100  # Example: Replace with actual amount
-
-        self.sales_history.add_sale(customer, product, amount)
-        print(f"Added sale: {customer.name} purchased {product} for {amount} USD")
+    def show_sales_history_window(self):
+        self.sales_history_window = tk.Toplevel()
+        self.sales_history_window.title("Sales History")
 
     def add_campaign(self):
         inventory_name = self.inventory_var.get()

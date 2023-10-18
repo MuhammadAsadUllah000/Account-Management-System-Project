@@ -27,6 +27,18 @@ class CRMApp:
         self.sales_history = SalesHistory()
         self.marketing_campaigns = MarketingCampaigns()
 
+        self.main_frame = tk.Frame(root)
+        self.main_frame.pack(padx=20, pady=20)
+
+        self.add_customer_button = tk.Button(self.main_frame, text="Add Customer", command=self.show_add_customer_window)
+        self.add_sale_button = tk.Button(self.main_frame, text="Add Sale", command=self.add_sale)
+        self.add_campaign_button = tk.Button(self.main_frame, text="Add Campaign", command=self.add_campaign)
+
+        self.add_customer_button.grid(row=0, column=0, pady=5)
+        self.add_sale_button.grid(row=1, column=0, pady=5)
+        self.add_campaign_button.grid(row=2, column=0, pady=5)
+
+    def show_add_customer_window(self):
         self.add_customer_window = tk.Toplevel()
         self.add_customer_window.title("Add Customer")
 
@@ -53,12 +65,6 @@ class CRMApp:
         self.address_entry.grid(row=3, column=1, padx=10, pady=5)
 
         self.add_customer_button.grid(row=4, column=0, columnspan=2, padx=10, pady=5, sticky=tk.W+tk.E)
-
-        self.add_sale_button = tk.Button(root, text="Add Sale", command=self.add_sale)
-        self.add_campaign_button = tk.Button(root, text="Add Campaign", command=self.add_campaign)
-
-        self.add_sale_button.grid(row=5, column=0, columnspan=2, padx=10, pady=5, sticky=tk.W+tk.E)
-        self.add_campaign_button.grid(row=6, column=0, columnspan=2, padx=10, pady=5, sticky=tk.W+tk.E)
 
     def add_customer(self):
         name = self.name_entry.get()

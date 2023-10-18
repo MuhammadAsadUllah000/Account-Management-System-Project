@@ -23,7 +23,7 @@ class MarketingCampaigns:
 
 class CRMApp:
     def __init__(self, root):
-        self.customers = []
+        self.customers = []  # List to store customer objects
         self.sales_history = SalesHistory()
         self.marketing_campaigns = MarketingCampaigns()
 
@@ -31,12 +31,14 @@ class CRMApp:
         self.main_frame.pack(padx=20, pady=20)
 
         self.add_customer_button = tk.Button(self.main_frame, text="Add Customer", command=self.show_add_customer_window)
+        self.display_customers_button = tk.Button(self.main_frame, text="Display Customers", command=self.display_customers)
         self.add_sale_button = tk.Button(self.main_frame, text="Add Sale", command=self.add_sale)
         self.add_campaign_button = tk.Button(self.main_frame, text="Add Campaign", command=self.add_campaign)
 
         self.add_customer_button.grid(row=0, column=0, pady=5)
-        self.add_sale_button.grid(row=1, column=0, pady=5)
-        self.add_campaign_button.grid(row=2, column=0, pady=5)
+        self.display_customers_button.grid(row=1, column=0, pady=5)
+        self.add_sale_button.grid(row=2, column=0, pady=5)
+        self.add_campaign_button.grid(row=3, column=0, pady=5)
 
     def show_add_customer_window(self):
         self.add_customer_window = tk.Toplevel()
@@ -78,6 +80,17 @@ class CRMApp:
         print(f"Added customer: {name}, Email: {email}, Phone: {phone}, Address: {address}")
 
         self.add_customer_window.destroy()  # Close the "Add Customer" window after saving
+
+    def display_customers(self):
+        display_window = tk.Toplevel()
+        display_window.title("Customer Information")
+
+        for customer in self.customers:
+            tk.Label(display_window, text=f"Name: {customer.name}").pack()
+            tk.Label(display_window, text=f"Email: {customer.email}").pack()
+            tk.Label(display_window, text=f"Phone: {customer.phone}").pack()
+            tk.Label(display_window, text=f"Address: {customer.address}").pack()
+            tk.Label(display_window, text="-------------------------").pack()
 
     def add_sale(self):
         # Add code to retrieve customer, product, and amount

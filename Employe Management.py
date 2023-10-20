@@ -221,7 +221,7 @@ def open_attendance_window():
     record_attendance()
 
 def record_attendance():
-    global id_entry, present_var, absent_var, result_display
+    global id_entry, result_display, attendance_var
 
     attendance_window = tk.Toplevel(root)
     attendance_window.title("Record Attendance")
@@ -231,11 +231,10 @@ def record_attendance():
     id_entry.grid(row=0, column=1, padx=(2, 5), pady=5)
     ttk.Label(attendance_window, text="*", font=font_style, foreground="red").grid(row=0, column=2, padx=5, pady=5, sticky='w')
 
-    present_var = tk.BooleanVar(value=False)  # Initialize as False
-    absent_var = tk.BooleanVar(value=False)   # Initialize as False
+    attendance_var = tk.StringVar(value="")  # Initialize as empty
 
-    ttk.Checkbutton(attendance_window, text="Present", variable=present_var).grid(row=1, column=0, padx=5, pady=5, sticky='w')
-    ttk.Checkbutton(attendance_window, text="Absent", variable=absent_var).grid(row=2, column=0, padx=5, pady=5, sticky='w')
+    ttk.Radiobutton(attendance_window, text="Present", variable=attendance_var, value="Present").grid(row=1, column=0, padx=5, pady=5, sticky='w')
+    ttk.Radiobutton(attendance_window, text="Absent", variable=attendance_var, value="Absent").grid(row=2, column=0, padx=5, pady=5, sticky='w')
 
     def display_attendance():
         emp_id = id_entry.get()
@@ -264,20 +263,18 @@ def record_attendance():
 
     def save_attendance():
         emp_id = id_entry.get()
-        present = present_var.get()
-        absent = absent_var.get()
+        attendance = attendance_var.get()
 
-        if emp_id and (present or absent):
+        if emp_id and attendance:
             emp_id = int(emp_id)
             if emp_id in employees:
-                attendance = "Present" if present else "Absent"
                 result_display.delete(1.0, tk.END)
                 result_display.insert(tk.END, f"Attendance for Employee ID {emp_id}: {attendance}\n")
                 # Add attendance record
                 if emp_id not in attendance_records:
                     attendance_records[emp_id] = {}
                 today = datetime.date.today().isoformat()
-                attendance_records[emp_id][today] = "Present" if present else "Absent"
+                attendance_records[emp_id][today] = attendance
             else:
                 result_display.delete(1.0, tk.END)
                 result_display.insert(tk.END, f"No employee found with ID '{emp_id}'\n")
@@ -287,6 +284,9 @@ def record_attendance():
 
     save_button = ttk.Button(attendance_window, text="Save Attendance", command=save_attendance)
     save_button.grid(row=5, column=0, columnspan=2, padx=5, pady=5)
+
+
+
     
 # Define result_display as a global variable
 result_display = None

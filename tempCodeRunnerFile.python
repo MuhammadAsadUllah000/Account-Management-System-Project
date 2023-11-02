@@ -9,7 +9,7 @@ class Product:
         self.price = price
         self.quantity = quantity
         self.supplier = supplier
-        self.purchased_quantity = quantity  # Set purchased_quantity to the initial quantity
+        self.purchased_quantity = quantity
         self.sold_quantity = 0
         self.image_path = image_path
 
@@ -49,6 +49,12 @@ class InventoryManager:
                 return
         print(f"Product '{product_name}' not found")
 
+    def get_sales_data(self):
+        sales_data = []
+        for product in self.products:
+            sales_data.append((product.name, product.sold_quantity))
+        return sales_data
+
 def add_stock(name_entry, price_entry, quantity_entry, supplier_entry, add_stock_window, image_path):
     name = name_entry.get()
     price = float(price_entry.get())
@@ -64,7 +70,6 @@ def add_stock(name_entry, price_entry, quantity_entry, supplier_entry, add_stock
     supplier_entry.delete(0, tk.END)
 
     add_stock_window.destroy()
-
 
 def open_add_stock_window():
     add_stock_window = tk.Toplevel(root)
@@ -118,43 +123,58 @@ def open_view_stock_window():
     label.pack(pady=5)
 
     def view_product():
-     name = entry.get()
-     product = None
-     for p in inventory.products:
-        if p.name == name:
-            product = p
-            break
-     if product:
-        result_frame = tk.Frame(view_stock_window)
-        result_frame.pack(pady=10)
+        name = entry.get()
+        product = None
+        for p in inventory.products:
+            if p.name == name:
+                product = p
+                break
+        if product:
+            result_frame = tk.Frame(view_stock_window)
+            result_frame.pack(pady=10)
 
-        tk.Label(result_frame, text="Name:").grid(row=0, column=0, sticky='w')
-        tk.Label(result_frame, text=product.name).grid(row=0, column=1, sticky='w')
+            tk.Label(result_frame, text="Name:").grid(row=0, column=0, sticky='w')
+            tk.Label(result_frame, text=product.name).grid(row=0, column=1, sticky='w')
 
-        tk.Label(result_frame, text="Price:").grid(row=1, column=0, sticky='w')
-        tk.Label(result_frame, text=f"${product.price}").grid(row=1, column=1, sticky='w')
+            tk.Label(result_frame, text="Price:").grid(row=1, column=0, sticky='w')
+            tk.Label(result_frame, text=f"${product.price}").grid(row=1, column=1, sticky='w')
 
-        tk.Label(result_frame, text="Quantity:").grid(row=2, column=0, sticky='w')
-        tk.Label(result_frame, text=product.quantity).grid(row=2, column=1, sticky='w')
+            tk.Label(result_frame, text="Quantity:").grid(row=2, column=0, sticky='w')
+            tk.Label(result_frame, text=product.quantity).grid(row=2, column=1, sticky='w')
 
-        tk.Label(result_frame, text="Supplier:").grid(row=3, column=0, sticky='w')
-        tk.Label(result_frame, text=product.supplier).grid(row=3, column=1, sticky='w')
+            tk.Label(result_frame, text="Supplier:").grid(row=3, column=0, sticky='w')
+            tk.Label(result_frame, text=product.supplier).grid(row=3, column=1, sticky='w')
 
-        # Display the image in a small box
-        img = Image.open(product.image_path)
-        img = img.resize((100, 100))  # Resize the image
-        photo = ImageTk.PhotoImage(img)
-        img_label = tk.Label(result_frame, image=photo)
-        img_label.image = photo  # Keep a reference to prevent garbage collection
-        img_label.grid(row=4, column=0, columnspan=2, pady=5)
+            # Display the image in a small box
+            img = Image.open(product.image_path)
+            img = img.resize((100, 100))
+            photo = ImageTk.PhotoImage(img)
+            img_label = tk.Label(result_frame, image=photo)
+            img_label.image = photo
+            img_label.grid(row=4, column=0, columnspan=2, pady=5)
 
-     else:
-        messagebox.showerror("Error", f"No stock or product found with the name '{name}'")
-
-
+        else:
+            messagebox.showerror("Error", f"No stock or product found with the name '{name}'")
 
     view_button = tk.Button(view_stock_window, text="View Product", command=view_product)
     view_button.pack(pady=10)
+
+def open_sales_history_window():
+    sales_history_window = tk.Toplevel(root)
+    sales_history_window.title("Sales History")
+
+    # Retrieve sales data from the InventoryManager
+    sales_data = inventory.get_sales_data()
+
+    if not sales_data:
+        tk.Label(sales_history_window, text="No sales data available").pack(pady=10)
+    else:
+        tk.Label(sales_history_window, text="Product Name").grid(row=0, column=0, padx=5, pady=5)
+        tk.Label(sales_history_window, text="Sold Quantity").grid(row=0, column=1, padx=5, pady=5)
+
+        for i, (product_name, sold_quantity) in enumerate(sales_data, start=1):
+            tk.Label(sales_history_window, text=product_name).grid(row=i, column=0, padx=5, pady=5)
+            tk.Label(sales_history_window, text=sold_quantity).grid(row=i, column=1, padx=5, pady=5)
 
 def open_record_stock_window():
     record_stock_window = tk.Toplevel(root)
@@ -201,7 +221,7 @@ def reorder_product(product_name, quantity, name_entry, quantity_entry, result_l
             quantity_entry.delete(0, tk.END)
             return
     else:
-                result_label.config(text=f"Product '{product_name}' not found")  # Display error message in the label
+        result_label.config(text=f"Product '{product_name}' not found")
 
 def open_reorder_window():
     reorder_window = tk.Toplevel(root)
@@ -257,209 +277,32 @@ def product_info(name, info_label):
             break
 
     if info:
-        info_label.config(text=info)  # Update label in the GUI
+        info_label.config(text=info)
     else:
         error_message = f"Product '{name}' not found"
-        info_label.config(text=error_message)  # Display error message in the label
+        info_label.config(text=error_message)
 
 def update_listbox():
     open_view_stock_window()
-def open_inventory_management():
-    inventory_management_window = tk.Toplevel(root)
-    inventory_management_window.title("Inventory Management")
 
-    add_stock_button = tk.Button(inventory_management_window, text="Add Stock", command=open_add_stock_window)
-    view_stock_button = tk.Button(inventory_management_window, text="View Stock", command=open_view_stock_window)
-    record_stock_button = tk.Button(inventory_management_window, text="Record Stock", command=open_record_stock_window)
-    reorder_button = tk.Button(inventory_management_window, text="Reordering", command=open_reorder_window)
-    product_info_button = tk.Button(inventory_management_window, text="Product Information", command=open_product_info_window)
+if __name__ == "__main__":
+    inventory = InventoryManager()
+
+    root = tk.Tk()
+    root.title("Inventory Management")
+
+    add_stock_button = tk.Button(root, text="Add Stock", command=open_add_stock_window)
+    view_stock_button = tk.Button(root, text="View Stock", command=update_listbox)
+    record_stock_button = tk.Button(root, text="Record Stock", command=open_record_stock_window)
+    reorder_button = tk.Button(root, text="Reordering", command=open_reorder_window)
+    product_info_button = tk.Button(root, text="Product Information", command=open_product_info_window)
+    sales_history_button = tk.Button(root, text="Sales History", command=open_sales_history_window)
 
     add_stock_button.pack(side=tk.LEFT, padx=10)
     view_stock_button.pack(side=tk.LEFT, padx=10)
     record_stock_button.pack(side=tk.LEFT, padx=10)
     reorder_button.pack(side=tk.LEFT, padx=10)
     product_info_button.pack(side=tk.LEFT, padx=10)
-
-class Customer:
-    def __init__(self, name, email, phone, address):
-        self.name = name
-        self.email = email
-        self.phone = phone
-        self.address = address
-
-class SalesHistory:
-    def __init__(self):
-        self.history = []
-
-    def add_sale(self, customer, product, amount):
-        self.history.append((customer, product, amount))
-
-class MarketingCampaigns:
-    def __init__(self):
-        self.campaigns = []
-
-    def add_campaign(self, inventory_name, discount_sale, campaign_details):
-        self.campaigns.append((inventory_name, discount_sale, campaign_details))
-
-class CRMApp:
-    def __init__(self, root):
-        self.customers = []  # List to store customer objects
-        self.sales_history = SalesHistory()
-        self.marketing_campaigns = MarketingCampaigns()
-
-        self.main_frame = tk.Frame(root)
-        self.main_frame.pack(padx=20, pady=20)
-
-        self.add_customer_button = tk.Button(self.main_frame, text="Add Customer", command=self.show_add_customer_window)
-        self.display_customer_button = tk.Button(self.main_frame, text="Display Customer", command=self.show_display_customer_window)
-        self.sales_history_button = tk.Button(self.main_frame, text="Sales History", command=self.show_sales_history_window)
-        self.add_campaign_button = tk.Button(self.main_frame, text="Add Campaign", command=self.show_add_campaign_window)
-
-        self.add_customer_button.grid(row=0, column=0, pady=5)
-        self.display_customer_button.grid(row=1, column=0, pady=5)
-        self.sales_history_button.grid(row=2, column=0, pady=5)
-        self.add_campaign_button.grid(row=3, column=0, pady=5)
-
-    def show_add_customer_window(self):
-        self.add_customer_window = tk.Toplevel()
-        self.add_customer_window.title("Add Customer")
-
-        self.name_label = tk.Label(self.add_customer_window, text="Name")
-        self.email_label = tk.Label(self.add_customer_window, text="Email")
-        self.phone_label = tk.Label(self.add_customer_window, text="Phone")
-        self.address_label = tk.Label(self.add_customer_window, text="Address")
-
-        self.name_entry = tk.Entry(self.add_customer_window, width=30)
-        self.email_entry = tk.Entry(self.add_customer_window, width=30)
-        self.phone_entry = tk.Entry(self.add_customer_window, width=30)
-        self.address_entry = tk.Entry(self.add_customer_window, width=30)
-
-        self.add_customer_button = tk.Button(self.add_customer_window, text="Add Customer", command=self.add_customer)
-
-        self.name_label.grid(row=0, column=0, padx=10, pady=5, sticky=tk.W)
-        self.email_label.grid(row=1, column=0, padx=10, pady=5, sticky=tk.W)
-        self.phone_label.grid(row=2, column=0, padx=10, pady=5, sticky=tk.W)
-        self.address_label.grid(row=3, column=0, padx=10, pady=5, sticky=tk.W)
-
-        self.name_entry.grid(row=0, column=1, padx=10, pady=5)
-        self.email_entry.grid(row=1, column=1, padx=10, pady=5)
-        self.phone_entry.grid(row=2, column=1, padx=10, pady=5)
-        self.address_entry.grid(row=3, column=1, padx=10, pady=5)
-
-        self.add_customer_button.grid(row=4, column=0, columnspan=2, padx=10, pady=5, sticky=tk.W+tk.E)
-
-    def add_customer(self):
-        name = self.name_entry.get()
-        email = self.email_entry.get()
-        phone = self.phone_entry.get()
-        address = self.address_entry.get()
-
-        if not name or not email or not phone or not address:
-            tk.messagebox.showerror("Error", "All fields are required!")
-            return
-
-        customer = Customer(name, email, phone, address)
-        self.customers.append(customer)
-
-        print(f"Added customer: {name}, Email: {email}, Phone: {phone}, Address: {address}")
-
-        self.add_customer_window.destroy()  # Close the "Add Customer" window after saving
-
-    def show_display_customer_window(self):
-        self.display_customer_window = tk.Toplevel()
-        self.display_customer_window.title("Display Customer")
-
-        self.name_label = tk.Label(self.display_customer_window, text="Customer Name")
-        self.name_entry = tk.Entry(self.display_customer_window, width=30)
-        self.display_button = tk.Button(self.display_customer_window, text="Display", command=self.display_customer)
-
-        self.name_label.grid(row=0, column=0, padx=10, pady=5, sticky=tk.W)
-        self.name_entry.grid(row=0, column=1, padx=10, pady=5)
-        self.display_button.grid(row=1, column=0, columnspan=2, pady=5)
-
-    def display_customer(self):
-        name = self.name_entry.get()
-
-        if not name:
-            tk.messagebox.showerror("Error", "Please enter a customer name!")
-            return
-
-        found = False
-        for customer in self.customers:
-            if customer.name == name:
-                found = True
-                tk.messagebox.showinfo("Customer Information", f"Name: {customer.name}\nEmail: {customer.email}\nPhone: {customer.phone}\nAddress: {customer.address}")
-                break
-
-        if not found:
-            tk.messagebox.showerror("Error", f"No customer found with the name '{name}'")
-    def show_add_campaign_window(self):
-        self.add_campaign_window = tk.Toplevel()
-        self.add_campaign_window.title("Add Campaign")
-
-        self.inventory_label = tk.Label(self.add_campaign_window, text="Inventory Name")
-        self.discount_label = tk.Label(self.add_campaign_window, text="Discount Sale")
-        self.campaign_detail_label = tk.Label(self.add_campaign_window, text="Campaign Detail")
-
-        self.inventory_options = ["Item A", "Item B", "Item C"]  # Replace with actual inventory options
-        self.discount_options = ["10%", "20%", "30%"]  # Replace with actual discount options
-        self.campaign_detail_options = ["Winter Sale", "Spring Sale", "Summer Sale"]  # Replace with actual campaign detail options
-
-        self.inventory_var = tk.StringVar(self.add_campaign_window)
-        self.discount_var = tk.StringVar(self.add_campaign_window)
-        self.campaign_detail_var = tk.StringVar(self.add_campaign_window)
-
-        self.inventory_var.set(self.inventory_options[0])
-        self.discount_var.set(self.discount_options[0])
-        self.campaign_detail_var.set(self.campaign_detail_options[0])
-
-        self.inventory_menu = tk.OptionMenu(self.add_campaign_window, self.inventory_var, *self.inventory_options)
-        self.discount_menu = tk.OptionMenu(self.add_campaign_window, self.discount_var, *self.discount_options)
-        self.campaign_detail_menu = tk.OptionMenu(self.add_campaign_window, self.campaign_detail_var, *self.campaign_detail_options)
-
-        self.add_campaign_button = tk.Button(self.add_campaign_window, text="Add Campaign", command=self.add_campaign)
-
-        self.inventory_label.grid(row=0, column=0, padx=10, pady=5, sticky=tk.W)
-        self.discount_label.grid(row=1, column=0, padx=10, pady=5, sticky=tk.W)
-        self.campaign_detail_label.grid(row=2, column=0, padx=10, pady=5, sticky=tk.W)
-
-        self.inventory_menu.grid(row=0, column=1, padx=10, pady=5)
-        self.discount_menu.grid(row=1, column=1, padx=10, pady=5)
-        self.campaign_detail_menu.grid(row=2, column=1, padx=10, pady=5)
-
-        self.add_campaign_button.grid(row=3, column=0, columnspan=2, padx=10, pady=5, sticky=tk.W+tk.E)
-
-    def show_sales_history_window(self):
-        self.sales_history_window = tk.Toplevel()
-        self.sales_history_window.title("Sales History")
-
-    def add_campaign(self):
-        inventory_name = self.inventory_var.get()
-        discount_sale = self.discount_var.get()
-        campaign_details = self.campaign_detail_var.get()
-
-        self.marketing_campaigns.add_campaign(inventory_name, discount_sale, campaign_details)
-        print(f"Added campaign: {campaign_details} with {discount_sale} off on {inventory_name}")
-
-def open_crm():
-    crm_window = tk.Toplevel(root)
-    crm_window.title("Customer Relationship Management")
-
-    crm_app = CRMApp(crm_window)
-
-
-if __name__ == "__main__":
-    inventory = InventoryManager()
-
-    root = tk.Tk()
-    root.title("Main Menu")
-
-    # Create a button for Inventory Management
-    inventory_button = tk.Button(root, text="Inventory Management", command=open_inventory_management)
-    inventory_button.pack(pady=20)
-
-    # Create a button for Customer Relationship Management
-    crm_button = tk.Button(root, text="Customer Relationship Management", command=open_crm)
-    crm_button.pack(pady=20)
+    sales_history_button.pack(side=tk.LEFT, padx=10)
 
     root.mainloop()

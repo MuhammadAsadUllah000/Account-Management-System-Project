@@ -9,7 +9,7 @@ class Product:
         self.price = price
         self.quantity = quantity
         self.supplier = supplier
-        self.purchased_quantity = quantity  # Set purchased_quantity to the initial quantity
+        self.purchased_quantity = quantity
         self.sold_quantity = 0
         self.image_path = image_path
 
@@ -49,6 +49,12 @@ class InventoryManager:
                 return
         print(f"Product '{product_name}' not found")
 
+    def get_sales_data(self):
+        sales_data = []
+        for product in self.products:
+            sales_data.append((product.name, product.sold_quantity))
+        return sales_data
+
 def add_stock(name_entry, price_entry, quantity_entry, supplier_entry, add_stock_window, image_path):
     name = name_entry.get()
     price = float(price_entry.get())
@@ -64,7 +70,6 @@ def add_stock(name_entry, price_entry, quantity_entry, supplier_entry, add_stock
     supplier_entry.delete(0, tk.END)
 
     add_stock_window.destroy()
-
 
 def open_add_stock_window():
     add_stock_window = tk.Toplevel(root)
@@ -118,43 +123,58 @@ def open_view_stock_window():
     label.pack(pady=5)
 
     def view_product():
-     name = entry.get()
-     product = None
-     for p in inventory.products:
-        if p.name == name:
-            product = p
-            break
-     if product:
-        result_frame = tk.Frame(view_stock_window)
-        result_frame.pack(pady=10)
+        name = entry.get()
+        product = None
+        for p in inventory.products:
+            if p.name == name:
+                product = p
+                break
+        if product:
+            result_frame = tk.Frame(view_stock_window)
+            result_frame.pack(pady=10)
 
-        tk.Label(result_frame, text="Name:").grid(row=0, column=0, sticky='w')
-        tk.Label(result_frame, text=product.name).grid(row=0, column=1, sticky='w')
+            tk.Label(result_frame, text="Name:").grid(row=0, column=0, sticky='w')
+            tk.Label(result_frame, text=product.name).grid(row=0, column=1, sticky='w')
 
-        tk.Label(result_frame, text="Price:").grid(row=1, column=0, sticky='w')
-        tk.Label(result_frame, text=f"${product.price}").grid(row=1, column=1, sticky='w')
+            tk.Label(result_frame, text="Price:").grid(row=1, column=0, sticky='w')
+            tk.Label(result_frame, text=f"${product.price}").grid(row=1, column=1, sticky='w')
 
-        tk.Label(result_frame, text="Quantity:").grid(row=2, column=0, sticky='w')
-        tk.Label(result_frame, text=product.quantity).grid(row=2, column=1, sticky='w')
+            tk.Label(result_frame, text="Quantity:").grid(row=2, column=0, sticky='w')
+            tk.Label(result_frame, text=product.quantity).grid(row=2, column=1, sticky='w')
 
-        tk.Label(result_frame, text="Supplier:").grid(row=3, column=0, sticky='w')
-        tk.Label(result_frame, text=product.supplier).grid(row=3, column=1, sticky='w')
+            tk.Label(result_frame, text="Supplier:").grid(row=3, column=0, sticky='w')
+            tk.Label(result_frame, text=product.supplier).grid(row=3, column=1, sticky='w')
 
-        # Display the image in a small box
-        img = Image.open(product.image_path)
-        img = img.resize((100, 100))  # Resize the image
-        photo = ImageTk.PhotoImage(img)
-        img_label = tk.Label(result_frame, image=photo)
-        img_label.image = photo  # Keep a reference to prevent garbage collection
-        img_label.grid(row=4, column=0, columnspan=2, pady=5)
+            # Display the image in a small box
+            img = Image.open(product.image_path)
+            img = img.resize((100, 100))
+            photo = ImageTk.PhotoImage(img)
+            img_label = tk.Label(result_frame, image=photo)
+            img_label.image = photo
+            img_label.grid(row=4, column=0, columnspan=2, pady=5)
 
-     else:
-        messagebox.showerror("Error", f"No stock or product found with the name '{name}'")
-
-
+        else:
+            messagebox.showerror("Error", f"No stock or product found with the name '{name}'")
 
     view_button = tk.Button(view_stock_window, text="View Product", command=view_product)
     view_button.pack(pady=10)
+
+def open_sales_history_window():
+    sales_history_window = tk.Toplevel(root)
+    sales_history_window.title("Sales History")
+
+    # Retrieve sales data from the InventoryManager
+    sales_data = inventory.get_sales_data()
+
+    if not sales_data:
+        tk.Label(sales_history_window, text="No sales data available").pack(pady=10)
+    else:
+        tk.Label(sales_history_window, text="Product Name").grid(row=0, column=0, padx=5, pady=5)
+        tk.Label(sales_history_window, text="Sold Quantity").grid(row=0, column=1, padx=5, pady=5)
+
+        for i, (product_name, sold_quantity) in enumerate(sales_data, start=1):
+            tk.Label(sales_history_window, text=product_name).grid(row=i, column=0, padx=5, pady=5)
+            tk.Label(sales_history_window, text=sold_quantity).grid(row=i, column=1, padx=5, pady=5)
 
 def open_record_stock_window():
     record_stock_window = tk.Toplevel(root)
@@ -201,7 +221,7 @@ def reorder_product(product_name, quantity, name_entry, quantity_entry, result_l
             quantity_entry.delete(0, tk.END)
             return
     else:
-                result_label.config(text=f"Product '{product_name}' not found")  # Display error message in the label
+        result_label.config(text=f"Product '{product_name}' not found")
 
 def open_reorder_window():
     reorder_window = tk.Toplevel(root)
@@ -257,10 +277,10 @@ def product_info(name, info_label):
             break
 
     if info:
-        info_label.config(text=info)  # Update label in the GUI
+        info_label.config(text=info)
     else:
         error_message = f"Product '{name}' not found"
-        info_label.config(text=error_message)  # Display error message in the label
+        info_label.config(text=error_message)
 
 def update_listbox():
     open_view_stock_window()
@@ -276,11 +296,13 @@ if __name__ == "__main__":
     record_stock_button = tk.Button(root, text="Record Stock", command=open_record_stock_window)
     reorder_button = tk.Button(root, text="Reordering", command=open_reorder_window)
     product_info_button = tk.Button(root, text="Product Information", command=open_product_info_window)
+    sales_history_button = tk.Button(root, text="Sales History", command=open_sales_history_window)
 
     add_stock_button.pack(side=tk.LEFT, padx=10)
     view_stock_button.pack(side=tk.LEFT, padx=10)
     record_stock_button.pack(side=tk.LEFT, padx=10)
     reorder_button.pack(side=tk.LEFT, padx=10)
     product_info_button.pack(side=tk.LEFT, padx=10)
+    sales_history_button.pack(side=tk.LEFT, padx=10)
 
     root.mainloop()

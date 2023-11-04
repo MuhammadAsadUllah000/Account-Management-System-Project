@@ -1228,9 +1228,9 @@ class CRMApp:
         self.discount_label = tk.Label(self.add_campaign_window, text="Discount Sale")
         self.campaign_detail_label = tk.Label(self.add_campaign_window, text="Campaign Detail")
 
-        self.inventory_options = ["Item A", "Item B", "Item C"]  # Replace with actual inventory options
-        self.discount_options = ["10%", "20%", "30%"]  # Replace with actual discount options
-        self.campaign_detail_options = ["Winter Sale", "Spring Sale", "Summer Sale"]  # Replace with actual campaign detail options
+        self.inventory_options = ["Inventory A", "Inventory B", "Inventory C"]  # Replace with actual inventory options
+        self.discount_options = ["Up to 30% Off", "Up to 50% Off", "Up to 70% Off"]  # Replace with actual discount options
+        self.campaign_detail_options = ["Clearance Sale", "Cyber Monday sale", "11.11 Sale"]  # Replace with actual campaign detail options
 
         self.inventory_var = tk.StringVar(self.add_campaign_window)
         self.discount_var = tk.StringVar(self.add_campaign_window)

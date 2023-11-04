@@ -1114,12 +1114,23 @@ class Customer:
         self.phone = phone
         self.address = address
 
-class SalesHistory:
-    def __init__(self):
-        self.history = []
+class Product:
+    def __init__(self, name, price, quantity):
+        self.name = name
+        self.price = price
+        self.quantity = quantity
+        self.remaining_quantity = quantity
 
-    def add_sale(self, customer, product, amount):
-        self.history.append((customer, product, amount))
+    def sell(self, amount):
+        self.remaining_quantity -= amount
+
+class InventoryManager:
+    def __init__(self):
+        self.products = []
+
+    def add_product(self, name, price, quantity):
+        product = Product(name, price, quantity)
+        self.products.append(product)
 
 class MarketingCampaigns:
     def __init__(self):
@@ -1131,21 +1142,21 @@ class MarketingCampaigns:
 class CRMApp:
     def __init__(self, root):
         self.customers = []  # List to store customer objects
-        self.sales_history = SalesHistory()
+        self.inventory = InventoryManager()
         self.marketing_campaigns = MarketingCampaigns()
 
         self.main_frame = tk.Frame(root)
         self.main_frame.pack(padx=20, pady=20)
 
+        # Buttons to perform different actions
         self.add_customer_button = tk.Button(self.main_frame, text="Add Customer", command=self.show_add_customer_window)
         self.display_customer_button = tk.Button(self.main_frame, text="Display Customer", command=self.show_display_customer_window)
-        self.sales_history_button = tk.Button(self.main_frame, text="Sales History", command=self.show_sales_history_window)
         self.add_campaign_button = tk.Button(self.main_frame, text="Add Campaign", command=self.show_add_campaign_window)
 
+        # Grid layout for buttons
         self.add_customer_button.grid(row=0, column=0, pady=5)
         self.display_customer_button.grid(row=1, column=0, pady=5)
-        self.sales_history_button.grid(row=2, column=0, pady=5)
-        self.add_campaign_button.grid(row=3, column=0, pady=5)
+        self.add_campaign_button.grid(row=2, column=0, pady=5)
 
     def show_add_customer_window(self):
         self.add_customer_window = tk.Toplevel()
@@ -1220,6 +1231,7 @@ class CRMApp:
 
         if not found:
             tk.messagebox.showerror("Error", f"No customer found with the name '{name}'")
+
     def show_add_campaign_window(self):
         self.add_campaign_window = tk.Toplevel()
         self.add_campaign_window.title("Add Campaign")
@@ -1255,10 +1267,6 @@ class CRMApp:
         self.campaign_detail_menu.grid(row=2, column=1, padx=10, pady=5)
 
         self.add_campaign_button.grid(row=3, column=0, columnspan=2, padx=10, pady=5, sticky=tk.W+tk.E)
-
-    def show_sales_history_window(self):
-        self.sales_history_window = tk.Toplevel()
-        self.sales_history_window.title("Sales History")
 
     def add_campaign(self):
         inventory_name = self.inventory_var.get()

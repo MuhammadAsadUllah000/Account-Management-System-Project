@@ -296,13 +296,12 @@ if __name__ == "__main__":
     record_stock_button = tk.Button(root, text="Record Stock", command=open_record_stock_window)
     reorder_button = tk.Button(root, text="Reordering", command=open_reorder_window)
     product_info_button = tk.Button(root, text="Product Information", command=open_product_info_window)
-    sales_history_button = tk.Button(root, text="Sales History", command=open_sales_history_window)
+    
 
     add_stock_button.pack(side=tk.LEFT, padx=10)
     view_stock_button.pack(side=tk.LEFT, padx=10)
     record_stock_button.pack(side=tk.LEFT, padx=10)
     reorder_button.pack(side=tk.LEFT, padx=10)
     product_info_button.pack(side=tk.LEFT, padx=10)
-    sales_history_button.pack(side=tk.LEFT, padx=10)
 
     root.mainloop()
